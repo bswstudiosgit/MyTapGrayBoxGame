@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Tap Grey Box</string>
+    <string name="gameplay_title_score">Score :</string>
+    <string name="play">PLAY</string>
+    <string name="gameover">GAMEOVER</string>
+    <string name="home">HOME</string>
+    <string name="replay">REPLAY</string>
+    <string name="current_score">Current Score</string>
+    <string name="best_score">Best Score</string>
+    <string name="do_you_want_to_save_this_game">Do you want to save this game?</string>
+    <string name="yes">YES</string>
+    <string name="no">NO</string>
+    <string name="do_you_want_to_exit">Do you want to exit?</string>
+    <string name="do_you_want_to_resume_saved_game">Do you want to resume saved game?</string>
+    <string name="continue_text">CONTINUE</string>
+    <string name="new_game">NEW GAME</string>
+</resources>

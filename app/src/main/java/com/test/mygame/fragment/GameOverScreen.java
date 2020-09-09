@@ -1,0 +1,82 @@
+package com.test.mygame.fragment;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.test.mygame.MainActivity;
+import com.test.mygame.R;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
+public class GameOverScreen extends Fragment {
+
+    public static String TAG = "game_over_screen_tag";
+    private TextView currentScoreView, bestScoreView;
+    private Button homeButton, replayButton;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.gameover_fragment_layout, container, false);
+
+        initViews(view);
+
+        return view;
+    }
+
+    private void initViews(View view) {
+        currentScoreView = view.findViewById(R.id.currentScoreView);
+        bestScoreView = view.findViewById(R.id.bestScoreView);
+
+        homeButton = view.findViewById(R.id.homeButton);
+        replayButton = view.findViewById(R.id.replayButton);
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getContext() != null) {
+                    MainActivity context = (MainActivity) getContext();
+                    context.getSupportFragmentManager().popBackStack();
+                }
+            }
+        });
+
+        replayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getContext() != null) {
+                    MainActivity context = (MainActivity) getContext();
+                    context.getSupportFragmentManager().popBackStack();
+                    context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                }
+            }
+        });
+
+        updateScores();
+    }
+
+    /**
+     * receive bundle and sets current and best score on respective textviews
+     */
+    private void updateScores() {
+        Bundle bundle = getArguments();
+        if (bundle != null) {
+            int currentScore = bundle.getInt("currentScore", 0);
+            int bestScore = bundle.getInt("bestScore", 0);
+
+            currentScoreView.setText(getString(R.string.current_score) + " : " + currentScore);
+            bestScoreView.setText(getString(R.string.best_score) + " : " + bestScore);
+        }
+    }
+}
