@@ -19,6 +19,7 @@ public class GameOverScreen extends Fragment {
     public static String TAG = "game_over_screen_tag";
     private TextView currentScoreView, bestScoreView;
     private Button homeButton, replayButton;
+    public int currentScore, bestScore;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,25 +59,48 @@ public class GameOverScreen extends Fragment {
                 if (getContext() != null) {
                     MainActivity context = (MainActivity) getContext();
                     context.getSupportFragmentManager().popBackStack();
+                    if (context.gameScreen == null)
+                        context.gameScreen = new GameScreen();
                     context.addFragment(context.gameScreen, context.gameScreen.TAG);
                 }
             }
         });
+    }
 
-        updateScores();
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        if (savedInstanceState == null || !savedInstanceState.containsKey("onScreen")) {
+            updateScoresFromReceivedBundle();
+        } else {
+            currentScore = savedInstanceState.getInt("currentScore");
+            bestScore = savedInstanceState.getInt("bestScore");
+
+            currentScoreView.setText(getString(R.string.current_score) + " : " + currentScore);
+            bestScoreView.setText(getString(R.string.best_score) + " : " + bestScore);
+        }
     }
 
     /**
      * receive bundle and sets current and best score on respective textviews
      */
-    private void updateScores() {
+    private void updateScoresFromReceivedBundle() {
         Bundle bundle = getArguments();
         if (bundle != null) {
-            int currentScore = bundle.getInt("currentScore", 0);
-            int bestScore = bundle.getInt("bestScore", 0);
+            currentScore = bundle.getInt("currentScore", 0);
+            bestScore = bundle.getInt("bestScore", 0);
 
             currentScoreView.setText(getString(R.string.current_score) + " : " + currentScore);
             bestScoreView.setText(getString(R.string.best_score) + " : " + bestScore);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("onScreen", "gameOverScreen");
+        outState.putInt("currentScore", currentScore);
+        outState.putInt("bestScore", bestScore);
     }
 }

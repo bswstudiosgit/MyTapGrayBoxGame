@@ -50,7 +50,7 @@ public class SplashScreen extends Fragment {
                 if (getContext() != null) {
                     MainActivity context = (MainActivity) getContext();
                     HomeScreen homeScreen = new HomeScreen();
-                    context.addFragment(homeScreen, homeScreen.TAG);
+                    context.replaceFragment(homeScreen, homeScreen.TAG);
                 }
             }
         }.start();

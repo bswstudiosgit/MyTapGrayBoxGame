@@ -32,6 +32,9 @@ public class GameScreen extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getContext() != null && savedInstanceState != null && savedInstanceState.containsKey("onScreen")
+                && ((MainActivity) getContext()).gameScreen == null)
+            ((MainActivity) getContext()).gameScreen = this;
     }
 
     @Nullable
@@ -87,7 +90,7 @@ public class GameScreen extends Fragment {
      *
      * @param lastSavedGame respresents last saved game state
      */
-    private void resumeLastSavedGame(SavedGame lastSavedGame) {
+    public void resumeLastSavedGame(SavedGame lastSavedGame) {
         if (textView.getVisibility() == View.VISIBLE)
             textView.setVisibility(View.GONE);
         setDefaultBoxesColor();
@@ -95,7 +98,7 @@ public class GameScreen extends Fragment {
         score = lastSavedGame.score;
         isGameOver = false;
         tapped = false;
-        isGamePaused = false;
+        isGamePaused = true;
         isGameStarted = true;
         sec = 0;
 
@@ -110,13 +113,14 @@ public class GameScreen extends Fragment {
 
         if (getContext() != null)
             ((MainActivity) getContext()).setScore(score);
-        resumeGame();
     }
 
     private void addListeners() {
         box1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isGamePaused)
+                    resumeGame();
                 if (isGameStarted && !tapped) {
                     if (grayBox == 1)
                         incrementScore();
@@ -129,6 +133,8 @@ public class GameScreen extends Fragment {
         box2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isGamePaused)
+                    resumeGame();
                 if (isGameStarted && !tapped) {
                     if (grayBox == 2)
                         incrementScore();
@@ -141,6 +147,8 @@ public class GameScreen extends Fragment {
         box3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isGamePaused)
+                    resumeGame();
                 if (isGameStarted && !tapped) {
                     if (grayBox == 3)
                         incrementScore();
@@ -153,6 +161,8 @@ public class GameScreen extends Fragment {
         box4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isGamePaused)
+                    resumeGame();
                 if (isGameStarted && !tapped) {
                     if (grayBox == 4)
                         incrementScore();
@@ -195,48 +205,52 @@ public class GameScreen extends Fragment {
      * also handles after tap on boxes to check whether game is over or not
      */
     private void setGrayColor() {
-        if (isGameOver)
-            return;
+        try {
+            if (isGameOver || isGamePaused)
+                return;
 
-        if (!tapped) {
-            gameOver();
-            return;
-        }
-
-        setDefaultBoxesColor();
-
-        // used to generate a random number between 0 to 3
-        int random = new Random().nextInt(4);
-        random += 1;
-
-        if (random == grayBox) {
-            setGrayColor();
-            return;
-        }
-        grayBox = random;
-        if (grayBox == 1)
-            box1.setBackgroundColor(getResources().getColor(R.color.grey));
-        else if (grayBox == 2)
-            box2.setBackgroundColor(getResources().getColor(R.color.grey));
-        else if (grayBox == 3)
-            box3.setBackgroundColor(getResources().getColor(R.color.grey));
-        else
-            box4.setBackgroundColor(getResources().getColor(R.color.grey));
-
-        tapped = false;
-        new CountDownTimer(1000, 1000) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-
+            if (!tapped) {
+                gameOver();
+                return;
             }
 
-            @Override
-            public void onFinish() {
-                if (!isGamePaused)
-                    setGrayColor();
+            setDefaultBoxesColor();
+
+            // used to generate a random number between 0 to 3
+            int random = new Random().nextInt(4);
+            random += 1;
+
+            if (random == grayBox) {
+                setGrayColor();
+                return;
             }
-        }.start();
+            grayBox = random;
+
+            if (grayBox == 1)
+                box1.setBackgroundColor(getResources().getColor(R.color.grey));
+            else if (grayBox == 2)
+                box2.setBackgroundColor(getResources().getColor(R.color.grey));
+            else if (grayBox == 3)
+                box3.setBackgroundColor(getResources().getColor(R.color.grey));
+            else
+                box4.setBackgroundColor(getResources().getColor(R.color.grey));
+
+            tapped = false;
+            new CountDownTimer(1000, 1000) {
+
+                @Override
+                public void onTick(long millisUntilFinished) {
+
+                }
+
+                @Override
+                public void onFinish() {
+                    if (!isGamePaused)
+                        setGrayColor();
+                }
+            }.start();
+        } catch (Exception e) {
+        }
     }
 
     /**
@@ -283,16 +297,20 @@ public class GameScreen extends Fragment {
 
             @Override
             public void onTick(long millisUntilFinished) {
-                textView.setText("" + sec);
-                sec -= 1;
+                if (!isGamePaused) {
+                    textView.setText("" + sec);
+                    sec -= 1;
+                }
             }
 
             @Override
             public void onFinish() {
-                if (textView.getVisibility() == View.VISIBLE)
-                    textView.setVisibility(View.GONE);
-                isGameStarted = true;
-                setGrayColor();
+                if (!isGamePaused) {
+                    if (textView.getVisibility() == View.VISIBLE)
+                        textView.setVisibility(View.GONE);
+                    isGameStarted = true;
+                    setGrayColor();
+                }
             }
         }.start();
     }
@@ -305,6 +323,12 @@ public class GameScreen extends Fragment {
         tapped = true;
         if (getContext() != null)
             ((MainActivity) getContext()).setScore(score);
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("onScreen", "gameScreen");
     }
 
 }

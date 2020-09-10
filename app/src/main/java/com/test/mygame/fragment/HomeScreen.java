@@ -10,6 +10,8 @@ import android.widget.Button;
 
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
+import com.test.mygame.ResponseListener;
+import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.model.SavedGame;
 import com.test.mygame.util.SharedPrefsManager;
 
@@ -45,15 +47,34 @@ public class HomeScreen extends Fragment {
             public void onClick(View v) {
                 if (getContext() != null) {
                     SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
+                    final MainActivity context = (MainActivity) getContext();
                     if (lastSavedGame == null) {
-                        MainActivity context = (MainActivity) getContext();
                         if (context.gameScreen == null)
                             context.gameScreen = new GameScreen();
                         context.addFragment(context.gameScreen, context.gameScreen.TAG);
                     } else {
-                        MainActivity context = (MainActivity) getContext();
-                        ResumeSaveGameScreen resumeSaveGameScreen = new ResumeSaveGameScreen();
-                        context.addFragment(resumeSaveGameScreen, resumeSaveGameScreen.TAG);
+                        new MyResponseDialog(getContext(), getString(R.string.do_you_want_to_resume_saved_game),
+                                getString(R.string.continue_text), getString(R.string.new_game), new ResponseListener() {
+                            @Override
+                            public void onPositiveResponse() {
+                                if (context.gameScreen == null)
+                                    context.gameScreen = new GameScreen();
+                                context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                            }
+
+                            @Override
+                            public void onNeutralResponse() {
+
+                            }
+
+                            @Override
+                            public void onNegativeResponse() {
+                                SharedPrefsManager.getInstance().deleteSavedGame(getContext());
+                                if (context.gameScreen == null)
+                                    context.gameScreen = new GameScreen();
+                                context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                            }
+                        }).show();
                     }
                 }
             }
@@ -66,12 +87,20 @@ public class HomeScreen extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
-        if (lastSavedGame != null && getContext() != null) {
-            MainActivity context = (MainActivity) getContext();
-            if (context.gameScreen == null)
-                context.gameScreen = new GameScreen();
-            context.addFragment(context.gameScreen, context.gameScreen.TAG);
+        if (savedInstanceState == null || !savedInstanceState.containsKey("onScreen")) {
+            SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
+            if (lastSavedGame != null && getContext() != null) {
+                MainActivity context = (MainActivity) getContext();
+                if (context.gameScreen == null)
+                    context.gameScreen = new GameScreen();
+                context.addFragment(context.gameScreen, context.gameScreen.TAG);
+            }
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("onScreen", "homeScreen");
     }
 }

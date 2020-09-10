@@ -67,9 +67,9 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="3"
+            android:text=""
             android:textColor="@color/black"
-            android:textSize="60sp" />
+            android:textSize="@dimen/gameplay_timer_text_size" />
 
     </RelativeLayout>
 
