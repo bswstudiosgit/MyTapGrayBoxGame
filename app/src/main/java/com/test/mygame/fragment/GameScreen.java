@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
 import com.test.mygame.model.SavedGame;
@@ -250,6 +251,7 @@ public class GameScreen extends Fragment {
                 }
             }.start();
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 

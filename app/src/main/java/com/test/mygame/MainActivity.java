@@ -3,6 +3,7 @@ package com.test.mygame;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.fragment.GameOverScreen;
 import com.test.mygame.fragment.GameScreen;
@@ -62,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
             transaction.addToBackStack(tag);
             transaction.commit();
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -72,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
             transaction.addToBackStack(tag);
             transaction.commit();
         } catch (Exception e) {
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 
@@ -106,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 getString(R.string.yes), getString(R.string.no), new ResponseListener() {
             @Override
             public void onPositiveResponse() {
+                FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", true);
                 SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox,
                         gameScreen.score));
                 getSupportFragmentManager().popBackStack();
@@ -117,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNegativeResponse() {
+                FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", false);
                 SharedPrefsManager.getInstance().deleteSavedGame(MainActivity.this);
                 getSupportFragmentManager().popBackStack();
             }
@@ -128,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
                 getString(R.string.yes), getString(R.string.no), new ResponseListener() {
             @Override
             public void onPositiveResponse() {
+                FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_YES_BUTTON_FROM_EXIT_DIALOG", true);
                 exitFromGame();
             }
 
@@ -138,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNegativeResponse() {
-
+                FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_NO_BUTTON_FROM_EXIT_DIALOG", true);
             }
         }).show();
     }

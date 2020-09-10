@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "163183950608",
+    "firebase_url": "https://my-tap-gray-box-game.firebaseio.com",
+    "project_id": "my-tap-gray-box-game",
+    "storage_bucket": "my-tap-gray-box-game.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163183950608:android:72b59423a1f574973ec395",
+        "android_client_info": {
+          "package_name": "com.bswgames.tapgray"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "163183950608-0ldjvqthj3p2kpnj3mt8dsdqd5v4l5a3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJcijvaXjOYkoJME05ZRKJwHdexhUVeNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "163183950608-0ldjvqthj3p2kpnj3mt8dsdqd5v4l5a3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
