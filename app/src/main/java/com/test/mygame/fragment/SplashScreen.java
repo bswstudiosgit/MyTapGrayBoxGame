@@ -47,12 +47,18 @@ public class SplashScreen extends Fragment {
 
             @Override
             public void onFinish() {
-                if (getContext() != null) {
+                if (getContext() != null && !((MainActivity) getContext()).isAppIsInBackground) {
                     MainActivity context = (MainActivity) getContext();
                     HomeScreen homeScreen = new HomeScreen();
                     context.replaceFragment(homeScreen, homeScreen.TAG);
                 }
             }
         }.start();
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("onScreen", "splashScreen");
     }
 }

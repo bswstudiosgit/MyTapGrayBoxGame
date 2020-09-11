@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     public FrameLayout fragmentContainer; // container used for all fragments
     public GameScreen gameScreen = null;
     private boolean haveRestoredInstanceState;
+    public boolean isAppIsInBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,25 +58,21 @@ public class MainActivity extends AppCompatActivity {
      * @param tag
      */
     public void addFragment(Fragment fragment, String tag) {
-        try {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(fragmentContainer.getId(), fragment, tag);
-            transaction.addToBackStack(tag);
-            transaction.commit();
-        } catch (Exception e) {
-            FirebaseCrashlytics.getInstance().recordException(e);
-        }
+        if (isAppIsInBackground)
+            return;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(fragmentContainer.getId(), fragment, tag);
+        transaction.addToBackStack(tag);
+        transaction.commit();
     }
 
     public void replaceFragment(Fragment fragment, String tag) {
-        try {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.replace(fragmentContainer.getId(), fragment, tag);
-            transaction.addToBackStack(tag);
-            transaction.commit();
-        } catch (Exception e) {
-            FirebaseCrashlytics.getInstance().recordException(e);
-        }
+        if (isAppIsInBackground)
+            return;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(fragmentContainer.getId(), fragment, tag);
+        transaction.addToBackStack(tag);
+        transaction.commit();
     }
 
     /**
@@ -159,6 +156,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        isAppIsInBackground = true;
         if (gameScreen != null)
             gameScreen.isGamePaused = true;
     }
@@ -177,6 +175,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        isAppIsInBackground = false;
         if (haveRestoredInstanceState) {
             haveRestoredInstanceState = false;
         } else {
