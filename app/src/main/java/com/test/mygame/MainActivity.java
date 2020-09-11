@@ -1,5 +1,6 @@
 package com.test.mygame;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     public GameScreen gameScreen = null;
     private boolean haveRestoredInstanceState;
     public boolean isAppIsInBackground;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     /**
@@ -169,6 +172,12 @@ public class MainActivity extends AppCompatActivity {
                 SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox, gameScreen.score));
             }
         }
+
+        /////////////////////////
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
         super.onStop();
     }
 
@@ -188,6 +197,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+        //////////
+        mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.music);
+        mediaPlayer.setLooping(true);
+        mediaPlayer.start();
     }
 
     @Override

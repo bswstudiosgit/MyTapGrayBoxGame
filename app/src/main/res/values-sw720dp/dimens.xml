@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="padding_standard">27.424dp</dimen>
+    <dimen name="gameover_screen_header_size">41.136sp</dimen>
+    <dimen name="margin_standard">27.424dp</dimen>
+    <dimen name="text_size_18">30.852sp</dimen>
+    <dimen name="gameplay_timer_text_size">102.84sp</dimen>
+    <dimen name="text_size_32">54.848sp</dimen>
+    <dimen name="splash_title_size">68.56sp</dimen>
+    <dimen name="dialog_title_text_size">30.852sp</dimen>
+    <dimen name="margin_large">54.848dp</dimen>
+</resources>
