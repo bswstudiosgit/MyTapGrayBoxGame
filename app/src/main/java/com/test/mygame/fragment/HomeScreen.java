@@ -49,6 +49,7 @@ public class HomeScreen extends Fragment {
                 if (getContext() != null) {
                     SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
                     final MainActivity context = (MainActivity) getContext();
+                    context.playTapSound();
                     if (lastSavedGame == null) {
                         FirebaseCrashlytics.getInstance().setCustomKey("STARTS_NEW_GAME_FROM_HOME_SCREEN", true);
                         if (context.gameScreen == null)
@@ -59,6 +60,7 @@ public class HomeScreen extends Fragment {
                                 getString(R.string.continue_text), getString(R.string.new_game), new ResponseListener() {
                             @Override
                             public void onPositiveResponse() {
+                                context.playTapSound();
                                 FirebaseCrashlytics.getInstance().setCustomKey("RESUME_LAST_SAVED_GAME_FROM_HOME_SCREEN", true);
                                 if (context.gameScreen == null)
                                     context.gameScreen = new GameScreen();
@@ -72,6 +74,7 @@ public class HomeScreen extends Fragment {
 
                             @Override
                             public void onNegativeResponse() {
+                                context.playTapSound();
                                 FirebaseCrashlytics.getInstance().setCustomKey("STARTS_NEW_GAME_FROM_HOME_SCREEN", true);
                                 SharedPrefsManager.getInstance().deleteSavedGame(getContext());
                                 if (context.gameScreen == null)

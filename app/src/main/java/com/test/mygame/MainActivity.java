@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 getString(R.string.yes), getString(R.string.no), new ResponseListener() {
             @Override
             public void onPositiveResponse() {
+                playTapSound();
                 FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", true);
                 SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox,
                         gameScreen.score));
@@ -121,6 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNegativeResponse() {
+                playTapSound();
                 FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", false);
                 SharedPrefsManager.getInstance().deleteSavedGame(MainActivity.this);
                 getSupportFragmentManager().popBackStack();
@@ -133,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 getString(R.string.yes), getString(R.string.no), new ResponseListener() {
             @Override
             public void onPositiveResponse() {
+                playTapSound();
                 FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_YES_BUTTON_FROM_EXIT_DIALOG", true);
                 exitFromGame();
             }
@@ -144,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNegativeResponse() {
+                playTapSound();
                 FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_NO_BUTTON_FROM_EXIT_DIALOG", true);
             }
         }).show();
@@ -200,6 +204,7 @@ public class MainActivity extends AppCompatActivity {
 
         //////////
         mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.music);
+        mediaPlayer.setVolume(0.2f, 0.2f);
         mediaPlayer.setLooping(true);
         mediaPlayer.start();
     }
@@ -213,5 +218,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    public void playTapSound() {
+        MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.click);
+        mediaPlayer.setVolume(0.2f, 0.2f);
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                if (mp != null) {
+                    mp.release();
+                }
+            }
+        });
+        mediaPlayer.start();
     }
 }

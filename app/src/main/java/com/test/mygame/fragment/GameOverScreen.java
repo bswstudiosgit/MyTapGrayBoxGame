@@ -48,6 +48,7 @@ public class GameOverScreen extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getContext() != null) {
+                    ((MainActivity) getContext()).playTapSound();
                     FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_HOME_BUTTON_FROM_GAMEOVER_SCREEN", true);
                     MainActivity context = (MainActivity) getContext();
                     context.getSupportFragmentManager().popBackStack();
@@ -61,6 +62,7 @@ public class GameOverScreen extends Fragment {
                 if (getContext() != null) {
                     FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_REPLAY_BUTTON_FROM_GAMEOVER_SCREEN", true);
                     MainActivity context = (MainActivity) getContext();
+                    context.playTapSound();
                     context.getSupportFragmentManager().popBackStack();
                     if (context.gameScreen == null)
                         context.gameScreen = new GameScreen();

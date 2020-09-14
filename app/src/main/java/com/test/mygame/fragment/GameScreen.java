@@ -123,6 +123,8 @@ public class GameScreen extends Fragment {
                 if (isGamePaused)
                     resumeGame();
                 if (isGameStarted && !tapped) {
+                    if (getContext() != null)
+                        ((MainActivity) getContext()).playTapSound();
                     if (grayBox == 1)
                         incrementScore();
                     else
@@ -137,6 +139,8 @@ public class GameScreen extends Fragment {
                 if (isGamePaused)
                     resumeGame();
                 if (isGameStarted && !tapped) {
+                    if (getContext() != null)
+                        ((MainActivity) getContext()).playTapSound();
                     if (grayBox == 2)
                         incrementScore();
                     else
@@ -151,6 +155,8 @@ public class GameScreen extends Fragment {
                 if (isGamePaused)
                     resumeGame();
                 if (isGameStarted && !tapped) {
+                    if (getContext() != null)
+                        ((MainActivity) getContext()).playTapSound();
                     if (grayBox == 3)
                         incrementScore();
                     else
@@ -165,6 +171,8 @@ public class GameScreen extends Fragment {
                 if (isGamePaused)
                     resumeGame();
                 if (isGameStarted && !tapped) {
+                    if (getContext() != null)
+                        ((MainActivity) getContext()).playTapSound();
                     if (grayBox == 4)
                         incrementScore();
                     else
