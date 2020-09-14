@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
+import com.test.mygame.MyFragmentManager;
 import com.test.mygame.R;
 import com.test.mygame.model.SavedGame;
 import com.test.mygame.util.SharedPrefsManager;
@@ -29,6 +30,7 @@ public class GameScreen extends Fragment {
     private boolean tapped;
     public boolean isGamePaused, isGameStarted, isGameOver;
     private int sec;
+    private CountDownTimer timer;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,6 +105,13 @@ public class GameScreen extends Fragment {
         isGameStarted = true;
         sec = 0;
 
+        setGrayColorForGivenBox(grayBox);
+
+        if (getContext() != null)
+            ((MainActivity) getContext()).setScore(score);
+    }
+
+    private void setGrayColorForGivenBox(int grayBox) {
         if (grayBox == 1)
             box1.setBackgroundColor(getResources().getColor(R.color.grey));
         else if (grayBox == 2)
@@ -111,75 +120,50 @@ public class GameScreen extends Fragment {
             box3.setBackgroundColor(getResources().getColor(R.color.grey));
         else
             box4.setBackgroundColor(getResources().getColor(R.color.grey));
-
-        if (getContext() != null)
-            ((MainActivity) getContext()).setScore(score);
     }
 
     private void addListeners() {
         box1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isGamePaused)
-                    resumeGame();
-                if (isGameStarted && !tapped) {
-                    if (getContext() != null)
-                        ((MainActivity) getContext()).playTapSound();
-                    if (grayBox == 1)
-                        incrementScore();
-                    else
-                        gameOver();
-                }
+                handleTapOnBox(1);
             }
         });
 
         box2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isGamePaused)
-                    resumeGame();
-                if (isGameStarted && !tapped) {
-                    if (getContext() != null)
-                        ((MainActivity) getContext()).playTapSound();
-                    if (grayBox == 2)
-                        incrementScore();
-                    else
-                        gameOver();
-                }
+                handleTapOnBox(2);
             }
         });
 
         box3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isGamePaused)
-                    resumeGame();
-                if (isGameStarted && !tapped) {
-                    if (getContext() != null)
-                        ((MainActivity) getContext()).playTapSound();
-                    if (grayBox == 3)
-                        incrementScore();
-                    else
-                        gameOver();
-                }
+                handleTapOnBox(3);
             }
         });
 
         box4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isGamePaused)
-                    resumeGame();
-                if (isGameStarted && !tapped) {
-                    if (getContext() != null)
-                        ((MainActivity) getContext()).playTapSound();
-                    if (grayBox == 4)
-                        incrementScore();
-                    else
-                        gameOver();
-                }
+                handleTapOnBox(4);
             }
         });
+    }
+
+    private void handleTapOnBox(int boxTouched) {
+        if (isGamePaused)
+            resumeGame();
+        if (isGameStarted && !tapped) {
+            if (getContext() != null)
+                ((MainActivity) getContext()).playTapSound();
+            if ((boxTouched == 1 && grayBox == 1) || (boxTouched == 2 && grayBox == 2) || (boxTouched == 3 && grayBox == 3) ||
+                    (boxTouched == 4 && grayBox == 4))
+                incrementScore();
+            else
+                gameOver();
+        }
     }
 
     /**
@@ -205,7 +189,7 @@ public class GameScreen extends Fragment {
         if (getContext() != null) {
             MainActivity context = (MainActivity) getContext();
             context.getSupportFragmentManager().popBackStack();
-            context.addFragment(fragment, fragment.TAG);
+            MyFragmentManager.getInstance().addFragment(context, context.fragmentContainer, fragment, fragment.TAG);
         }
     }
 
@@ -235,17 +219,10 @@ public class GameScreen extends Fragment {
             }
             grayBox = random;
 
-            if (grayBox == 1)
-                box1.setBackgroundColor(getResources().getColor(R.color.grey));
-            else if (grayBox == 2)
-                box2.setBackgroundColor(getResources().getColor(R.color.grey));
-            else if (grayBox == 3)
-                box3.setBackgroundColor(getResources().getColor(R.color.grey));
-            else
-                box4.setBackgroundColor(getResources().getColor(R.color.grey));
+            setGrayColorForGivenBox(grayBox);
 
             tapped = false;
-            new CountDownTimer(1000, 1000) {
+            timer = new CountDownTimer(1000, 1000) {
 
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -254,6 +231,7 @@ public class GameScreen extends Fragment {
 
                 @Override
                 public void onFinish() {
+                    timer = null;
                     if (!isGamePaused)
                         setGrayColor();
                 }
@@ -268,7 +246,7 @@ public class GameScreen extends Fragment {
      */
     public void resumeGame() {
         isGamePaused = false;
-        new CountDownTimer(1000, 1000) {
+        timer = new CountDownTimer(1000, 1000) {
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -277,6 +255,7 @@ public class GameScreen extends Fragment {
 
             @Override
             public void onFinish() {
+                timer = null;
                 if (!isGamePaused)
                     setGrayColor();
             }
@@ -303,7 +282,7 @@ public class GameScreen extends Fragment {
      * handle timer for 3 seconds in start of game
      */
     private void startTimer() {
-        new CountDownTimer(3000, 1000) {
+        timer = new CountDownTimer(3000, 1000) {
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -315,6 +294,7 @@ public class GameScreen extends Fragment {
 
             @Override
             public void onFinish() {
+                timer = null;
                 if (!isGamePaused) {
                     if (textView.getVisibility() == View.VISIBLE)
                         textView.setVisibility(View.GONE);
@@ -341,4 +321,10 @@ public class GameScreen extends Fragment {
         outState.putString("onScreen", "gameScreen");
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (timer != null)
+            timer.cancel();
+    }
 }

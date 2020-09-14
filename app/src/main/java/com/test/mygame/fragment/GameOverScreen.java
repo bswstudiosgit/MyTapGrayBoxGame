@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
+import com.test.mygame.MyFragmentManager;
 import com.test.mygame.R;
 
 import androidx.annotation.NonNull;
@@ -66,7 +67,8 @@ public class GameOverScreen extends Fragment {
                     context.getSupportFragmentManager().popBackStack();
                     if (context.gameScreen == null)
                         context.gameScreen = new GameScreen();
-                    context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                    MyFragmentManager.getInstance().addFragment(context, context.fragmentContainer, context.gameScreen,
+                            context.gameScreen.TAG);
                 }
             }
         });
@@ -82,9 +84,13 @@ public class GameOverScreen extends Fragment {
             currentScore = savedInstanceState.getInt("currentScore");
             bestScore = savedInstanceState.getInt("bestScore");
 
-            currentScoreView.setText(getString(R.string.current_score) + " : " + currentScore);
-            bestScoreView.setText(getString(R.string.best_score) + " : " + bestScore);
+            setScoreToRespectiveViews();
         }
+    }
+
+    private void setScoreToRespectiveViews() {
+        currentScoreView.setText(getString(R.string.current_score) + " : " + currentScore);
+        bestScoreView.setText(getString(R.string.best_score) + " : " + bestScore);
     }
 
     /**
@@ -96,8 +102,7 @@ public class GameOverScreen extends Fragment {
             currentScore = bundle.getInt("currentScore", 0);
             bestScore = bundle.getInt("bestScore", 0);
 
-            currentScoreView.setText(getString(R.string.current_score) + " : " + currentScore);
-            bestScoreView.setText(getString(R.string.best_score) + " : " + bestScore);
+            setScoreToRespectiveViews();
         }
     }
 

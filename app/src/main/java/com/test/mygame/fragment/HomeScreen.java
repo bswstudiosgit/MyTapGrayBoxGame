@@ -10,6 +10,7 @@ import android.widget.Button;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
+import com.test.mygame.MyFragmentManager;
 import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
 import com.test.mygame.dialog.MyResponseDialog;
@@ -52,9 +53,7 @@ public class HomeScreen extends Fragment {
                     context.playTapSound();
                     if (lastSavedGame == null) {
                         FirebaseCrashlytics.getInstance().setCustomKey("STARTS_NEW_GAME_FROM_HOME_SCREEN", true);
-                        if (context.gameScreen == null)
-                            context.gameScreen = new GameScreen();
-                        context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                        goToGameScreen(context);
                     } else {
                         new MyResponseDialog(getContext(), getString(R.string.do_you_want_to_resume_saved_game),
                                 getString(R.string.continue_text), getString(R.string.new_game), new ResponseListener() {
@@ -62,9 +61,7 @@ public class HomeScreen extends Fragment {
                             public void onPositiveResponse() {
                                 context.playTapSound();
                                 FirebaseCrashlytics.getInstance().setCustomKey("RESUME_LAST_SAVED_GAME_FROM_HOME_SCREEN", true);
-                                if (context.gameScreen == null)
-                                    context.gameScreen = new GameScreen();
-                                context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                                goToGameScreen(context);
                             }
 
                             @Override
@@ -77,9 +74,7 @@ public class HomeScreen extends Fragment {
                                 context.playTapSound();
                                 FirebaseCrashlytics.getInstance().setCustomKey("STARTS_NEW_GAME_FROM_HOME_SCREEN", true);
                                 SharedPrefsManager.getInstance().deleteSavedGame(getContext());
-                                if (context.gameScreen == null)
-                                    context.gameScreen = new GameScreen();
-                                context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                                goToGameScreen(context);
                             }
                         }).show();
                     }
@@ -90,6 +85,12 @@ public class HomeScreen extends Fragment {
         return view;
     }
 
+    private void goToGameScreen(MainActivity context) {
+        if (context.gameScreen == null)
+            context.gameScreen = new GameScreen();
+        MyFragmentManager.getInstance().addFragment(context, context.fragmentContainer, context.gameScreen, context.gameScreen.TAG);
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -98,9 +99,7 @@ public class HomeScreen extends Fragment {
             SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
             if (lastSavedGame != null && getContext() != null) {
                 MainActivity context = (MainActivity) getContext();
-                if (context.gameScreen == null)
-                    context.gameScreen = new GameScreen();
-                context.addFragment(context.gameScreen, context.gameScreen.TAG);
+                goToGameScreen(context);
             }
         }
     }

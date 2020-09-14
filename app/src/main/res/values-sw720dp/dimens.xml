@@ -9,4 +9,5 @@
     <dimen name="splash_title_size">68.56sp</dimen>
     <dimen name="dialog_title_text_size">30.852sp</dimen>
     <dimen name="margin_large">54.848dp</dimen>
+    <dimen name="game_screen_box_size">0dp</dimen>
 </resources>

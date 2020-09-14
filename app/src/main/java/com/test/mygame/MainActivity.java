@@ -1,6 +1,5 @@
 package com.test.mygame;
 
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.widget.FrameLayout;
 
@@ -11,6 +10,7 @@ import com.test.mygame.fragment.GameScreen;
 import com.test.mygame.fragment.HomeScreen;
 import com.test.mygame.fragment.SplashScreen;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.MySoundManager;
 import com.test.mygame.util.SharedPrefsManager;
 
 import java.util.Random;
@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     public GameScreen gameScreen = null;
     private boolean haveRestoredInstanceState;
     public boolean isAppIsInBackground;
-    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentContainer = findViewById(R.id.fragment_container);
 
         if (savedInstanceState == null)
-            addFragment(new SplashScreen(), null);
+            MyFragmentManager.getInstance().addFragment(MainActivity.this, fragmentContainer, new SplashScreen(), null);
         else
             haveRestoredInstanceState = true;
 
@@ -52,30 +50,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    /**
-     * add given fragment to fragment back stack with given tag
-     *
-     * @param fragment represents a screen
-     * @param tag
-     */
-    public void addFragment(Fragment fragment, String tag) {
-        if (isAppIsInBackground)
-            return;
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(fragmentContainer.getId(), fragment, tag);
-        transaction.addToBackStack(tag);
-        transaction.commit();
-    }
-
-    public void replaceFragment(Fragment fragment, String tag) {
-        if (isAppIsInBackground)
-            return;
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.replace(fragmentContainer.getId(), fragment, tag);
-        transaction.addToBackStack(tag);
-        transaction.commit();
     }
 
     /**
@@ -178,10 +152,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         /////////////////////////
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            mediaPlayer = null;
-        }
+        MySoundManager.getInstance(this).releaseSoundPool();
         super.onStop();
     }
 
@@ -202,11 +173,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        //////////
-        mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.music);
-        mediaPlayer.setVolume(0.2f, 0.2f);
-        mediaPlayer.setLooping(true);
-        mediaPlayer.start();
+        /////////////////////
+        MySoundManager.getInstance(this).loadSound(this);
     }
 
     @Override
@@ -221,16 +189,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void playTapSound() {
-        MediaPlayer mediaPlayer = MediaPlayer.create(MainActivity.this, R.raw.click);
-        mediaPlayer.setVolume(0.2f, 0.2f);
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                if (mp != null) {
-                    mp.release();
-                }
-            }
-        });
-        mediaPlayer.start();
+        MySoundManager.getInstance(MainActivity.this).playTapSound();
     }
 }
