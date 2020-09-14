@@ -9,7 +9,7 @@ import android.widget.TextView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
-import com.test.mygame.MyFragmentManager;
+import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
 
 import androidx.annotation.NonNull;

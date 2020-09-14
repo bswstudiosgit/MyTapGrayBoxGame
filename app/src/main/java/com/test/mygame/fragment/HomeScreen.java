@@ -10,7 +10,7 @@ import android.widget.Button;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
-import com.test.mygame.MyFragmentManager;
+import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
 import com.test.mygame.dialog.MyResponseDialog;

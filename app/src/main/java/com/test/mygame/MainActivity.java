@@ -1,6 +1,7 @@
 package com.test.mygame;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.FrameLayout;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -10,6 +11,7 @@ import com.test.mygame.fragment.GameScreen;
 import com.test.mygame.fragment.HomeScreen;
 import com.test.mygame.fragment.SplashScreen;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.MySoundManager;
 import com.test.mygame.util.SharedPrefsManager;
 
@@ -25,12 +27,14 @@ public class MainActivity extends AppCompatActivity {
     public FrameLayout fragmentContainer; // container used for all fragments
     public GameScreen gameScreen = null;
     private boolean haveRestoredInstanceState;
-    public boolean isAppIsInBackground;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (getSupportActionBar() != null)
+            getSupportActionBar().hide();
 
         fragmentContainer = findViewById(R.id.fragment_container);
 
@@ -50,15 +54,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-    }
-
-    /**
-     * set title for showing given score on title bar
-     *
-     * @param score
-     */
-    public void setScore(int score) {
-        setTitle(getString(R.string.gameplay_title_score) + " " + score);
+        // initializing sound manager and loading required sounds
+        MySoundManager.getInstance().loadSound(this);
     }
 
     @Override
@@ -137,9 +134,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        isAppIsInBackground = true;
         if (gameScreen != null)
             gameScreen.isGamePaused = true;
+
+        MySoundManager.getInstance().pause();
     }
 
     @Override
@@ -151,15 +149,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        /////////////////////////
-        MySoundManager.getInstance(this).releaseSoundPool();
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        MySoundManager.getInstance().releaseSoundPool();
+        super.onDestroy();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        isAppIsInBackground = false;
         if (haveRestoredInstanceState) {
             haveRestoredInstanceState = false;
         } else {
@@ -173,8 +174,11 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        /////////////////////
-        MySoundManager.getInstance(this).loadSound(this);
+        MySoundManager.getInstance().resume();
+
+        ///// handle show/hide status and navigation bar //////
+        hideSystemUI();
+        setListenerToHideStatusAndNavigationBar();
     }
 
     @Override
@@ -189,6 +193,35 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void playTapSound() {
-        MySoundManager.getInstance(MainActivity.this).playTapSound();
+        MySoundManager.getInstance().playTapSound();
     }
+
+    private void hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    private void setListenerToHideStatusAndNavigationBar() {
+        View decorView = getWindow().getDecorView();
+        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
+            @Override
+            public void onSystemUiVisibilityChange(int visibility) {
+                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
+                    hideSystemUI();
+            }
+        });
+    }
+
 }

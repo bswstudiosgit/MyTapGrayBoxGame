@@ -7,10 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.test.mygame.MainActivity;
-import com.test.mygame.MyFragmentManager;
+import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
-import com.test.mygame.ResponseListener;
-import com.test.mygame.util.MySoundManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,11 +57,9 @@ public class SplashScreen extends Fragment {
             @Override
             public void onFinish() {
                 timer = null;
-                if (getContext() != null && !((MainActivity) getContext()).isAppIsInBackground) {
-                    MainActivity context = (MainActivity) getContext();
-                    HomeScreen homeScreen = new HomeScreen();
-                    MyFragmentManager.getInstance().replaceFragment(context, context.fragmentContainer, homeScreen, homeScreen.TAG);
-                }
+                MainActivity context = (MainActivity) getContext();
+                HomeScreen homeScreen = new HomeScreen();
+                MyFragmentManager.getInstance().replaceFragment(context, context.fragmentContainer, homeScreen, homeScreen.TAG);
             }
         }.start();
     }

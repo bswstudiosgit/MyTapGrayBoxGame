@@ -1,8 +1,11 @@
-package com.test.mygame;
+package com.test.mygame.util;
 
 import android.widget.FrameLayout;
 
+import com.test.mygame.MainActivity;
+
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 public class MyFragmentManager {
@@ -24,33 +27,41 @@ public class MyFragmentManager {
 
     /**
      * add given fragment to fragment back stack with given tag
-     * @param context represents main activity
+     *
+     * @param context           represents main activity
      * @param fragmentContainer represents frame layout as container for fragment
-     * @param fragment represents a screen
+     * @param fragment          represents a screen
      * @param tag
      */
     public void addFragment(MainActivity context, FrameLayout fragmentContainer, Fragment fragment, String tag) {
-        if (context == null || context.isAppIsInBackground)
+        if (context == null)
             return;
-        FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
-        transaction.add(fragmentContainer.getId(), fragment, tag);
-        transaction.addToBackStack(tag);
-        transaction.commit();
+        FragmentManager fragmentManager = context.getSupportFragmentManager();
+        if (fragmentManager != null && !fragment.isStateSaved()) {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.add(fragmentContainer.getId(), fragment, tag);
+            transaction.addToBackStack(tag);
+            transaction.commit();
+        }
     }
 
     /**
      * replace given fragment to fragment back stack with given tag
-     * @param context represents main activity
+     *
+     * @param context           represents main activity
      * @param fragmentContainer represents frame layout as container for fragment
-     * @param fragment represents a screen
+     * @param fragment          represents a screen
      * @param tag
      */
     public void replaceFragment(MainActivity context, FrameLayout fragmentContainer, Fragment fragment, String tag) {
-        if (context == null || context.isAppIsInBackground)
+        if (context == null)
             return;
-        FragmentTransaction transaction = context.getSupportFragmentManager().beginTransaction();
-        transaction.replace(fragmentContainer.getId(), fragment, tag);
-        transaction.addToBackStack(tag);
-        transaction.commit();
+        FragmentManager fragmentManager = context.getSupportFragmentManager();
+        if (fragmentManager != null && !fragmentManager.isStateSaved()) {
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.replace(fragmentContainer.getId(), fragment, tag);
+            transaction.addToBackStack(tag);
+            transaction.commit();
+        }
     }
 }

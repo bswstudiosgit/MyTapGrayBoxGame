@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
-import com.test.mygame.MyFragmentManager;
+import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
 import com.test.mygame.model.SavedGame;
 import com.test.mygame.util.SharedPrefsManager;
@@ -25,7 +25,7 @@ public class GameScreen extends Fragment {
 
     public static String TAG = "game_screen_tag";
     private LinearLayout box1, box2, box3, box4;
-    private TextView textView;
+    private TextView textView, scoreView;
     public int grayBox = 0, score;
     private boolean tapped;
     public boolean isGamePaused, isGameStarted, isGameOver;
@@ -69,14 +69,14 @@ public class GameScreen extends Fragment {
         box4 = view.findViewById(R.id.box4);
 
         textView = view.findViewById(R.id.textView);
+        scoreView = view.findViewById(R.id.scoreView);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (getContext() != null)
-            ((MainActivity) getContext()).setScore(score);
+        scoreView.setText(getString(R.string.gameplay_title_score) + " " + score);
 
         addListeners();
 
@@ -107,8 +107,7 @@ public class GameScreen extends Fragment {
 
         setGrayColorForGivenBox(grayBox);
 
-        if (getContext() != null)
-            ((MainActivity) getContext()).setScore(score);
+        scoreView.setText(getString(R.string.gameplay_title_score) + " " + score);
     }
 
     private void setGrayColorForGivenBox(int grayBox) {
@@ -311,8 +310,7 @@ public class GameScreen extends Fragment {
     private void incrementScore() {
         score++;
         tapped = true;
-        if (getContext() != null)
-            ((MainActivity) getContext()).setScore(score);
+        scoreView.setText(getString(R.string.gameplay_title_score) + " " + score);
     }
 
     @Override
