@@ -9,10 +9,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.test.mygame.BuildConfig;
 import com.test.mygame.MainActivity;
-import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
 
 import java.util.Random;
@@ -81,7 +82,11 @@ public class GameScreen extends Fragment {
         addListeners();
 
         SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
-        if (lastSavedGame == null) {
+        if (lastSavedGame == null || !BuildConfig.IS_FULL_VERSION) {
+            if (savedInstanceState != null && savedInstanceState.containsKey("onScreen") && savedInstanceState.containsKey("score")) {
+                resumeLastSavedGame(new SavedGame(savedInstanceState.getInt("grayBox"), savedInstanceState.getInt("score")));
+                return;
+            }
             startTimer();
         } else {
             resumeLastSavedGame(lastSavedGame);
@@ -317,6 +322,10 @@ public class GameScreen extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("onScreen", "gameScreen");
+        if (isGameStarted && !isGameOver) {
+            outState.putInt("grayBox", grayBox);
+            outState.putInt("score", score);
+        }
     }
 
     @Override

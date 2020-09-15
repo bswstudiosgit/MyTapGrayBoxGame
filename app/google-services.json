@@ -10,7 +10,36 @@
       "client_info": {
         "mobilesdk_app_id": "1:163183950608:android:72b59423a1f574973ec395",
         "android_client_info": {
-          "package_name": "com.bswgames.tapgray"
+          "package_name": "com.bswgames.tapgray.demo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "163183950608-0ldjvqthj3p2kpnj3mt8dsdqd5v4l5a3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJcijvaXjOYkoJME05ZRKJwHdexhUVeNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "163183950608-0ldjvqthj3p2kpnj3mt8dsdqd5v4l5a3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:163183950608:android:72b59423a1f574973ec395",
+        "android_client_info": {
+          "package_name": "com.bswgames.tapgray.full"
         }
       },
       "oauth_client": [

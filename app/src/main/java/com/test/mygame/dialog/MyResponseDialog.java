@@ -33,7 +33,7 @@ public class MyResponseDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.ask_save_game_screen_layout);
+        setContentView(R.layout.my_response_dialog_layout);
 
         positiveButton = findViewById(R.id.yes);
         negativeButton = findViewById(R.id.no);

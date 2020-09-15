@@ -76,14 +76,23 @@ public class MainActivity extends AppCompatActivity {
         if (!gameScreen.isGameStarted)
             return;
         gameScreen.isGamePaused = true;
-        new MyResponseDialog(MainActivity.this, getString(R.string.do_you_want_to_save_this_game),
+
+        String message;
+        if (BuildConfig.IS_FULL_VERSION)
+            message = getString(R.string.do_you_want_to_save_this_game);
+        else
+            message = getString(R.string.do_you_want_to_exit);
+
+        new MyResponseDialog(MainActivity.this, message,
                 getString(R.string.yes), getString(R.string.no), new ResponseListener() {
             @Override
             public void onPositiveResponse() {
                 playTapSound();
-                FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", true);
-                SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox,
-                        gameScreen.score));
+                if (BuildConfig.IS_FULL_VERSION) {
+                    FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", true);
+                    SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox,
+                            gameScreen.score));
+                }
                 getSupportFragmentManager().popBackStack();
             }
 
@@ -94,9 +103,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNegativeResponse() {
                 playTapSound();
-                FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", false);
-                SharedPrefsManager.getInstance().deleteSavedGame(MainActivity.this);
-                getSupportFragmentManager().popBackStack();
+                if (BuildConfig.IS_FULL_VERSION) {
+                    FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", false);
+                    SharedPrefsManager.getInstance().deleteSavedGame(MainActivity.this);
+                    getSupportFragmentManager().popBackStack();
+                }
             }
         }).show();
     }
@@ -142,7 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop() {
-        if (gameScreen != null) {
+        if (BuildConfig.IS_FULL_VERSION && gameScreen != null) {
             Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
             if (fragment instanceof GameScreen && gameScreen.isGameStarted && !gameScreen.isGameOver) {
                 SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox, gameScreen.score));

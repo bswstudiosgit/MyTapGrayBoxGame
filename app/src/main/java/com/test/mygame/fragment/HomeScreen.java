@@ -9,12 +9,13 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.test.mygame.BuildConfig;
 import com.test.mygame.MainActivity;
-import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
 
 import androidx.annotation.NonNull;
@@ -51,7 +52,7 @@ public class HomeScreen extends Fragment {
                     SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
                     final MainActivity context = (MainActivity) getContext();
                     context.playTapSound();
-                    if (lastSavedGame == null) {
+                    if (lastSavedGame == null || !BuildConfig.IS_FULL_VERSION) {
                         FirebaseCrashlytics.getInstance().setCustomKey("STARTS_NEW_GAME_FROM_HOME_SCREEN", true);
                         goToGameScreen(context);
                     } else {
@@ -95,7 +96,8 @@ public class HomeScreen extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        if (savedInstanceState == null || !savedInstanceState.containsKey("onScreen")) {
+        // directly navigates to game screen if there is a saved game found (for full version)
+        if (BuildConfig.IS_FULL_VERSION && (savedInstanceState == null || !savedInstanceState.containsKey("onScreen"))) {
             SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
             if (lastSavedGame != null && getContext() != null) {
                 MainActivity context = (MainActivity) getContext();
