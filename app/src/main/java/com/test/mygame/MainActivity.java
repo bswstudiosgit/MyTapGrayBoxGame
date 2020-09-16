@@ -1,16 +1,16 @@
 package com.test.mygame;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.FrameLayout;
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.fragment.GameOverScreen;
 import com.test.mygame.fragment.GameScreen;
 import com.test.mygame.fragment.HomeScreen;
 import com.test.mygame.fragment.SplashScreen;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.Factory;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.MySoundManager;
 import com.test.mygame.util.SharedPrefsManager;
@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
             public void onPositiveResponse() {
                 playTapSound();
                 if (BuildConfig.IS_FULL_VERSION) {
-                    FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", true);
                     SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox,
                             gameScreen.score));
                 }
@@ -104,7 +103,6 @@ public class MainActivity extends AppCompatActivity {
             public void onNegativeResponse() {
                 playTapSound();
                 if (BuildConfig.IS_FULL_VERSION) {
-                    FirebaseCrashlytics.getInstance().setCustomKey("SAVED_CURRENT_GAME_FROM_SAVED_GAME_DIALOG", false);
                     SharedPrefsManager.getInstance().deleteSavedGame(MainActivity.this);
                     getSupportFragmentManager().popBackStack();
                 }
@@ -118,7 +116,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPositiveResponse() {
                 playTapSound();
-                FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_YES_BUTTON_FROM_EXIT_DIALOG", true);
                 exitFromGame();
             }
 
@@ -130,7 +127,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onNegativeResponse() {
                 playTapSound();
-                FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_NO_BUTTON_FROM_EXIT_DIALOG", true);
             }
         }).show();
     }
@@ -188,8 +184,8 @@ public class MainActivity extends AppCompatActivity {
         MySoundManager.getInstance().resume();
 
         ///// handle show/hide status and navigation bar //////
-        hideSystemUI();
-        setListenerToHideStatusAndNavigationBar();
+        Factory.getInstance().hideSystemUI(MainActivity.this);
+        Factory.getInstance().setListenerToHideStatusAndNavigationBar(MainActivity.this);
     }
 
     @Override
@@ -207,32 +203,13 @@ public class MainActivity extends AppCompatActivity {
         MySoundManager.getInstance().playTapSound();
     }
 
-    private void hideSystemUI() {
-        // Enables regular immersive mode.
-        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
-        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        // Set the content to appear under the system bars so that the
-                        // content doesn't resize when the system bars hide and show.
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        // Hide the nav bar and status bar
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
-    }
-
-    private void setListenerToHideStatusAndNavigationBar() {
-        View decorView = getWindow().getDecorView();
-        decorView.setOnSystemUiVisibilityChangeListener(new View.OnSystemUiVisibilityChangeListener() {
-            @Override
-            public void onSystemUiVisibilityChange(int visibility) {
-                if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0)
-                    hideSystemUI();
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == Factory.getInstance().WRITE_REQUEST_CODE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                //
             }
-        });
+        }
     }
-
 }

@@ -11,4 +11,5 @@
     <dimen name="margin_large">50.24dp</dimen>
     <dimen name="game_screen_box_size">0dp</dimen>
     <dimen name="score_bar_height">62.8dp</dimen>
+    <dimen name="text_size_10">20.625sp</dimen>
 </resources>

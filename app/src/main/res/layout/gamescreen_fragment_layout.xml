@@ -2,20 +2,17 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:background="@color/black"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/black">
 
-    <LinearLayout
-        android:id="@+id/box1"
-        android:layout_width="@dimen/game_screen_box_size"
-        android:layout_height="@dimen/game_screen_box_size"
-        android:layout_marginTop="40dp"
-        android:background="@color/orange"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/box3"
-        app:layout_constraintEnd_toStartOf="@+id/box2"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <Button
+        android:id="@+id/mailUs"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/score_bar_height"
+        android:text="@string/mail_us"
+        android:textSize="@dimen/text_size_10"
+        app:layout_constraintEnd_toEndOf="@+id/scoreView"
+        app:layout_constraintTop_toTopOf="@+id/scoreView" />
 
     <LinearLayout
         android:id="@+id/box2"
@@ -27,7 +24,9 @@
         app:layout_constraintBottom_toTopOf="@+id/box4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/box1"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+    </LinearLayout>
 
 
     <LinearLayout
@@ -53,6 +52,34 @@
         app:layout_constraintTop_toBottomOf="@+id/box2" />
 
 
+    <LinearLayout
+        android:id="@+id/box1"
+        android:layout_width="@dimen/game_screen_box_size"
+        android:layout_height="@dimen/game_screen_box_size"
+        android:layout_marginTop="40dp"
+        android:background="@color/orange"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toTopOf="@+id/box3"
+        app:layout_constraintEnd_toStartOf="@+id/box2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/scoreView"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/score_bar_height"
+        android:background="@color/black"
+        android:gravity="center_vertical"
+        android:paddingStart="@dimen/padding_standard"
+        android:textColor="@color/white"
+        android:textSize="@dimen/text_size_18"
+        app:layout_constraintBottom_toTopOf="@+id/box1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
@@ -65,20 +92,6 @@
         app:layout_constraintEnd_toEndOf="@+id/box1"
         app:layout_constraintStart_toEndOf="@+id/box1"
         app:layout_constraintTop_toBottomOf="@+id/box1" />
-
-    <TextView
-        android:id="@+id/scoreView"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/score_bar_height"
-        android:gravity="center_vertical"
-        android:background="@color/black"
-        android:textColor="@color/white"
-        android:textSize="@dimen/text_size_18"
-        android:paddingStart="@dimen/padding_standard"
-        app:layout_constraintBottom_toTopOf="@+id/box1"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

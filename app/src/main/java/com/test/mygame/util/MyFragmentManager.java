@@ -3,6 +3,7 @@ package com.test.mygame.util;
 import android.widget.FrameLayout;
 
 import com.test.mygame.MainActivity;
+import com.test.mygame.R;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -39,6 +40,10 @@ public class MyFragmentManager {
         FragmentManager fragmentManager = context.getSupportFragmentManager();
         if (fragmentManager != null && !fragment.isStateSaved()) {
             FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.setCustomAnimations(R.anim.slide_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.slide_out);
             transaction.add(fragmentContainer.getId(), fragment, tag);
             transaction.addToBackStack(tag);
             transaction.commit();
@@ -59,6 +64,10 @@ public class MyFragmentManager {
         FragmentManager fragmentManager = context.getSupportFragmentManager();
         if (fragmentManager != null && !fragmentManager.isStateSaved()) {
             FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.setCustomAnimations(R.anim.slide_in,
+                    R.anim.fade_out,
+                    R.anim.fade_in,
+                    R.anim.slide_out);
             transaction.replace(fragmentContainer.getId(), fragment, tag);
             transaction.addToBackStack(tag);
             transaction.commit();

@@ -7,10 +7,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
-import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
+import com.test.mygame.util.MyFragmentManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,7 +49,6 @@ public class GameOverScreen extends Fragment {
             public void onClick(View v) {
                 if (getContext() != null) {
                     ((MainActivity) getContext()).playTapSound();
-                    FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_HOME_BUTTON_FROM_GAMEOVER_SCREEN", true);
                     MainActivity context = (MainActivity) getContext();
                     context.getSupportFragmentManager().popBackStack();
                 }
@@ -61,7 +59,6 @@ public class GameOverScreen extends Fragment {
             @Override
             public void onClick(View v) {
                 if (getContext() != null) {
-                    FirebaseCrashlytics.getInstance().setCustomKey("CLICKED_REPLAY_BUTTON_FROM_GAMEOVER_SCREEN", true);
                     MainActivity context = (MainActivity) getContext();
                     context.playTapSound();
                     context.getSupportFragmentManager().popBackStack();

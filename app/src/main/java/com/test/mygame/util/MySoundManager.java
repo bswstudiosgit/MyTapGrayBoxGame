@@ -72,19 +72,22 @@ public class MySoundManager {
     }
 
     public void playMusic() {
-        soundPool.play(music, 1, 1, 0, -1, 1);
+        if (soundPool != null)
+            soundPool.play(music, 1, 1, 0, -1, 1);
     }
 
     public void stopMusic() {
-        soundPool.stop(music);
+        if (soundPool != null)
+            soundPool.stop(music);
     }
 
     public void pause() {
-        soundPool.autoPause();
+        if (soundPool != null)
+            soundPool.autoPause();
     }
 
     public void resume() {
-        if (soundLoaded == MAX_AUDIO_STREAMS)
+        if (soundPool != null && soundLoaded == MAX_AUDIO_STREAMS)
             soundPool.autoResume();
     }
 }

@@ -8,7 +8,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.BuildConfig;
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
@@ -53,7 +52,6 @@ public class HomeScreen extends Fragment {
                     final MainActivity context = (MainActivity) getContext();
                     context.playTapSound();
                     if (lastSavedGame == null || !BuildConfig.IS_FULL_VERSION) {
-                        FirebaseCrashlytics.getInstance().setCustomKey("STARTS_NEW_GAME_FROM_HOME_SCREEN", true);
                         goToGameScreen(context);
                     } else {
                         new MyResponseDialog(getContext(), getString(R.string.do_you_want_to_resume_saved_game),
@@ -61,7 +59,6 @@ public class HomeScreen extends Fragment {
                             @Override
                             public void onPositiveResponse() {
                                 context.playTapSound();
-                                FirebaseCrashlytics.getInstance().setCustomKey("RESUME_LAST_SAVED_GAME_FROM_HOME_SCREEN", true);
                                 goToGameScreen(context);
                             }
 
@@ -73,7 +70,6 @@ public class HomeScreen extends Fragment {
                             @Override
                             public void onNegativeResponse() {
                                 context.playTapSound();
-                                FirebaseCrashlytics.getInstance().setCustomKey("STARTS_NEW_GAME_FROM_HOME_SCREEN", true);
                                 SharedPrefsManager.getInstance().deleteSavedGame(getContext());
                                 goToGameScreen(context);
                             }

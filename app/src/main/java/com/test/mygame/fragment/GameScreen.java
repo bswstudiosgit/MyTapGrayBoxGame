@@ -1,10 +1,13 @@
 package com.test.mygame.fragment;
 
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -13,13 +16,16 @@ import com.test.mygame.BuildConfig;
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.Factory;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
 
+import java.io.File;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 public class GameScreen extends Fragment {
@@ -27,8 +33,9 @@ public class GameScreen extends Fragment {
     public static String TAG = "game_screen_tag";
     private LinearLayout box1, box2, box3, box4;
     private TextView textView, scoreView;
+    private Button mailUsButtonView;
     public int grayBox = 0, score;
-    private boolean tapped;
+    private boolean tapped, canTouch;
     public boolean isGamePaused, isGameStarted, isGameOver;
     private int sec;
     private CountDownTimer timer;
@@ -62,6 +69,7 @@ public class GameScreen extends Fragment {
         isGameStarted = false;
         tapped = true;
         isGamePaused = false;
+        canTouch = true;
         setDefaultBoxesColor();
 
         box1 = view.findViewById(R.id.box1);
@@ -71,6 +79,7 @@ public class GameScreen extends Fragment {
 
         textView = view.findViewById(R.id.textView);
         scoreView = view.findViewById(R.id.scoreView);
+        mailUsButtonView = view.findViewById(R.id.mailUs);
     }
 
     @Override
@@ -154,6 +163,32 @@ public class GameScreen extends Fragment {
                 handleTapOnBox(4);
             }
         });
+
+        mailUsButtonView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (canTouch && isGameStarted) {
+                    canTouch = false;
+                    onClickMailUs();
+                    enableTouch();
+                }
+            }
+        });
+    }
+
+    private void enableTouch() {
+        timer = new CountDownTimer(2000, 2000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                canTouch = true;
+                timer = null;
+            }
+        }.start();
     }
 
     private void handleTapOnBox(int boxTouched) {
@@ -331,7 +366,25 @@ public class GameScreen extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
+        canTouch = true;
         if (timer != null)
             timer.cancel();
+    }
+
+    public void onClickMailUs() {
+        if (getActivity() != null) {
+            isGamePaused = true;
+            ((MainActivity) getActivity()).playTapSound();
+            File file = Factory.getInstance().takeScreenshot(getActivity());
+            if (file != null) {
+                String subject = getString(R.string.feedback_mail_subject);
+                String body = getString(R.string.feedback) + ":\n" +
+                        getString(R.string.network_type) + ": " + Factory.getInstance().getNetworkType(getContext()) + "\n" +
+                        getString(R.string.device_info) + ": " + Build.BRAND.toUpperCase() + " " + Build.MODEL + "\n" +
+                        getString(R.string.score) + ": " + score;
+                Uri uri = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".provider", file);
+                Factory.getInstance().sendMail(getActivity(), subject, body, uri);
+            }
+        }
     }
 }
