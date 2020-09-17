@@ -47,6 +47,26 @@ public class SharedPrefsManager {
         return 0;
     }
 
+    public void write_string_prefs(Context context, String key, String value) {
+        if (context == null)
+            return;
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
+        if (sharedPreferences != null) {
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(key, value);
+            editor.apply();
+        }
+    }
+
+    public String read_string_prefs(Context context, String key) {
+        if (context == null)
+            return "";
+        SharedPreferences sharedPreferences = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE);
+        if (sharedPreferences != null)
+            return sharedPreferences.getString(key, "");
+        return "";
+    }
+
     public void saveGame(Context context, SavedGame savedGame) {
         if (context == null)
             return;

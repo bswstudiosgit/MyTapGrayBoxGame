@@ -20,4 +20,11 @@
     <string name="device_info">Device Info</string>
     <string name="score">Score</string>
     <string name="mail_us">Mail Us</string>
+    <string name="color_code1">#FF5722</string>
+    <string name="color_code2">#2196F3</string>
+    <string name="color_code3">#FFC107</string>
+    <string name="color_code4">#4CAF50</string>
+    <string name="color_code5">#7E7D7C</string>
+    <string name="show_rc_values">Show RC Values</string>
+
 </resources>

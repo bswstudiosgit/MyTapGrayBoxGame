@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tap Game Full</string>
+    <string name="app_name">Tap Game</string>
     <string name="gameplay_title_score">Score :</string>
     <string name="play">PLAY</string>
     <string name="gameover">GAMEOVER</string>

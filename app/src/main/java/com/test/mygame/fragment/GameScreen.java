@@ -1,9 +1,11 @@
 package com.test.mygame.fragment;
 
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.test.mygame.BuildConfig;
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
@@ -19,6 +22,9 @@ import com.test.mygame.model.SavedGame;
 import com.test.mygame.util.Factory;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Random;
@@ -37,7 +43,8 @@ public class GameScreen extends Fragment {
     public int grayBox = 0, score;
     private boolean tapped, canTouch;
     public boolean isGamePaused, isGameStarted, isGameOver;
-    private int sec;
+    private int sec, gameTimeInSec;
+    private String box1Color, box2Color, box3Color, box4Color, grayBoxColor;
     private CountDownTimer timer;
 
     @Override
@@ -70,6 +77,7 @@ public class GameScreen extends Fragment {
         tapped = true;
         isGamePaused = false;
         canTouch = true;
+        initializeValuesFromRemoteConfig();
         setDefaultBoxesColor();
 
         box1 = view.findViewById(R.id.box1);
@@ -77,9 +85,48 @@ public class GameScreen extends Fragment {
         box3 = view.findViewById(R.id.box3);
         box4 = view.findViewById(R.id.box4);
 
+        box1.setBackgroundColor(Color.parseColor(box1Color));
+        box2.setBackgroundColor(Color.parseColor(box2Color));
+        box3.setBackgroundColor(Color.parseColor(box3Color));
+        box4.setBackgroundColor(Color.parseColor(box4Color));
+
         textView = view.findViewById(R.id.textView);
         scoreView = view.findViewById(R.id.scoreView);
         mailUsButtonView = view.findViewById(R.id.mailUs);
+    }
+
+    private void initializeValuesFromRemoteConfig() {
+        // default values
+        gameTimeInSec = 1;
+        box1Color = getString(R.string.color_code1);
+        box2Color = getString(R.string.color_code2);
+        box3Color = getString(R.string.color_code3);
+        box4Color = getString(R.string.color_code4);
+        grayBoxColor = getString(R.string.color_code5);
+
+        // from remote config
+        if (getContext() != null) {
+            FirebaseRemoteConfig remoteConfig = ((MainActivity) getContext()).mFirebaseRemoteConfig;
+            if (remoteConfig != null) {
+                if (!TextUtils.isEmpty(remoteConfig.getString("time_gap")))
+                    gameTimeInSec = Integer.parseInt(remoteConfig.getString("time_gap"));
+
+                if (!TextUtils.isEmpty(remoteConfig.getString("colours"))) {
+                    try {
+                        JSONObject object = new JSONObject(remoteConfig.getString("colours"));
+                        box1Color = object.getString("colour1");
+                        box2Color = object.getString("colour2");
+                        box3Color = object.getString("colour3");
+                        box4Color = object.getString("colour4");
+                        grayBoxColor = object.getString("colour5");
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        FirebaseCrashlytics.getInstance().recordException(e);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -122,17 +169,6 @@ public class GameScreen extends Fragment {
         setGrayColorForGivenBox(grayBox);
 
         scoreView.setText(getString(R.string.gameplay_title_score) + " " + score);
-    }
-
-    private void setGrayColorForGivenBox(int grayBox) {
-        if (grayBox == 1)
-            box1.setBackgroundColor(getResources().getColor(R.color.grey));
-        else if (grayBox == 2)
-            box2.setBackgroundColor(getResources().getColor(R.color.grey));
-        else if (grayBox == 3)
-            box3.setBackgroundColor(getResources().getColor(R.color.grey));
-        else
-            box4.setBackgroundColor(getResources().getColor(R.color.grey));
     }
 
     private void addListeners() {
@@ -261,7 +297,7 @@ public class GameScreen extends Fragment {
             setGrayColorForGivenBox(grayBox);
 
             tapped = false;
-            timer = new CountDownTimer(1000, 1000) {
+            timer = new CountDownTimer(gameTimeInSec * 1000, gameTimeInSec * 1000) {
 
                 @Override
                 public void onTick(long millisUntilFinished) {
@@ -285,7 +321,7 @@ public class GameScreen extends Fragment {
      */
     public void resumeGame() {
         isGamePaused = false;
-        timer = new CountDownTimer(1000, 1000) {
+        timer = new CountDownTimer(gameTimeInSec * 1000, gameTimeInSec * 1000) {
 
             @Override
             public void onTick(long millisUntilFinished) {
@@ -307,14 +343,25 @@ public class GameScreen extends Fragment {
     private void setDefaultBoxesColor() {
         if (grayBox != 0) {
             if (grayBox == 1)
-                box1.setBackgroundColor(getResources().getColor(R.color.orange));
+                box1.setBackgroundColor(Color.parseColor(box1Color));
             else if (grayBox == 2)
-                box2.setBackgroundColor(getResources().getColor(R.color.blue));
+                box2.setBackgroundColor(Color.parseColor(box2Color));
             else if (grayBox == 3)
-                box3.setBackgroundColor(getResources().getColor(R.color.yellow));
+                box3.setBackgroundColor(Color.parseColor(box3Color));
             else
-                box4.setBackgroundColor(getResources().getColor(R.color.green));
+                box4.setBackgroundColor(Color.parseColor(box4Color));
         }
+    }
+
+    private void setGrayColorForGivenBox(int grayBox) {
+        if (grayBox == 1)
+            box1.setBackgroundColor(Color.parseColor(grayBoxColor));
+        else if (grayBox == 2)
+            box2.setBackgroundColor(Color.parseColor(grayBoxColor));
+        else if (grayBox == 3)
+            box3.setBackgroundColor(Color.parseColor(grayBoxColor));
+        else
+            box4.setBackgroundColor(Color.parseColor(grayBoxColor));
     }
 
     /**

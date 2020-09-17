@@ -2,8 +2,15 @@ package com.test.mygame;
 
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.installations.FirebaseInstallations;
+import com.google.firebase.installations.InstallationTokenResult;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.fragment.GameOverScreen;
 import com.test.mygame.fragment.GameScreen;
@@ -27,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
     public FrameLayout fragmentContainer; // container used for all fragments
     public GameScreen gameScreen = null;
     private boolean haveRestoredInstanceState;
+
+    public FirebaseRemoteConfig mFirebaseRemoteConfig;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +65,30 @@ public class MainActivity extends AppCompatActivity {
 
         // initializing sound manager and loading required sounds
         MySoundManager.getInstance().loadSound(this);
+
+        // initiating remote config
+        initFirebaseRemoteConfig();
+    }
+
+    private void initFirebaseRemoteConfig() {
+        mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
+        FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
+                .setMinimumFetchIntervalInSeconds(3600 * 2)
+                .build();
+        mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);
+
+        mFirebaseRemoteConfig.fetchAndActivate()
+                .addOnCompleteListener(this, new OnCompleteListener<Boolean>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Boolean> task) {
+                        if (task.isSuccessful()) {
+                            Log.d("TAG", "Config params updated");
+
+                        } else {
+                            Log.d("TAG", "Config params updation failed");
+                        }
+                    }
+                });
     }
 
     @Override

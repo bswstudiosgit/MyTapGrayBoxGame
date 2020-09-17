@@ -1,6 +1,7 @@
 package com.test.mygame.fragment;
 
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,14 +9,20 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.test.mygame.BuildConfig;
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
 import com.test.mygame.dialog.MyResponseDialog;
+import com.test.mygame.dialog.ShowDataDialog;
 import com.test.mygame.model.SavedGame;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,7 +31,7 @@ import androidx.fragment.app.Fragment;
 public class HomeScreen extends Fragment {
 
     public static String TAG = "home_screen_tag";
-    private Button playButton;
+    private Button playButton, showRCValuesButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,6 +44,7 @@ public class HomeScreen extends Fragment {
         View view = inflater.inflate(R.layout.homescreen_fragment_layout, container, false);
 
         playButton = view.findViewById(R.id.play);
+        showRCValuesButton = view.findViewById(R.id.button);
         if (getContext() != null) {
             Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.button_scale_animation);
             playButton.startAnimation(animation);
@@ -79,6 +87,15 @@ public class HomeScreen extends Fragment {
             }
         });
 
+        ////////////////
+
+        showRCValuesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showRemoteConfigData();
+            }
+        });
+
         return view;
     }
 
@@ -106,5 +123,33 @@ public class HomeScreen extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("onScreen", "homeScreen");
+    }
+
+    private void showRemoteConfigData() {
+        String data = "";
+        if (getContext() != null) {
+            FirebaseRemoteConfig remoteConfig = ((MainActivity) getContext()).mFirebaseRemoteConfig;
+            if (remoteConfig != null) {
+                if (!TextUtils.isEmpty(remoteConfig.getString("time_gap")))
+                    data += "time_gap " + remoteConfig.getString("time_gap") + "\n";
+
+                if (!TextUtils.isEmpty(remoteConfig.getString("colours"))) {
+                    try {
+                        JSONObject object = new JSONObject(remoteConfig.getString("colours"));
+                        data += "colour1 " + object.getString("colour1") + "\n";
+                        data += "colour2 " + object.getString("colour2") + "\n";
+                        data += "colour3 " + object.getString("colour3") + "\n";
+                        data += "colour4 " + object.getString("colour4") + "\n";
+                        data += "colour5 " + object.getString("colour5");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        FirebaseCrashlytics.getInstance().recordException(e);
+                    }
+                }
+            }
+        }
+
+        if (!TextUtils.isEmpty(data))
+            new ShowDataDialog(getContext(), data).show();
     }
 }
