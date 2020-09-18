@@ -109,6 +109,22 @@ public class HomeScreen extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        if (getContext() != null) {
+            MainActivity context = (MainActivity) getContext();
+            if (context.haveToGoDirectToGameScreen) {
+                context.haveToGoDirectToGameScreen = false;
+                goToGameScreen(context);
+                return;
+            }
+
+            String payloadData = SharedPrefsManager.getInstance().read_string_prefs(getContext(),
+                    SharedPrefsManager.getInstance().FCM_DATA_PAYLOAD_KEY);
+            if (!TextUtils.isEmpty(payloadData)) {
+                showPayloadData(payloadData);
+                return;
+            }
+        }
+
         // directly navigates to game screen if there is a saved game found (for full version)
         if (BuildConfig.IS_FULL_VERSION && (savedInstanceState == null || !savedInstanceState.containsKey("onScreen"))) {
             SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
@@ -116,6 +132,26 @@ public class HomeScreen extends Fragment {
                 MainActivity context = (MainActivity) getContext();
                 goToGameScreen(context);
             }
+        }
+    }
+
+    private void showPayloadData(String payloadData) {
+        String data = "";
+        try {
+            JSONObject jsonObject = new JSONObject(payloadData);
+            data += "Name : " + jsonObject.getString("Name") + "\n";
+            data += "Msg : " + jsonObject.getString("Msg") + "\n";
+            data += "msgType : " + jsonObject.getString("msgType");
+            if (!TextUtils.isEmpty(data))
+                new ShowDataDialog(getContext(), data).show();
+
+            // clearing payload data from preferences
+            SharedPrefsManager.getInstance().write_string_prefs(getContext(), SharedPrefsManager.getInstance().FCM_DATA_PAYLOAD_KEY,
+                    "");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
         }
     }
 

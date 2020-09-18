@@ -1,5 +1,8 @@
 package com.test.mygame;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -7,10 +10,11 @@ import android.widget.FrameLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.installations.FirebaseInstallations;
-import com.google.firebase.installations.InstallationTokenResult;
+import com.google.firebase.crashlytics.FirebaseCrashlytics;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
+import com.test.mygame.alarm.NotificationReceiver;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.fragment.GameOverScreen;
 import com.test.mygame.fragment.GameScreen;
@@ -22,6 +26,11 @@ import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.MySoundManager;
 import com.test.mygame.util.SharedPrefsManager;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
@@ -34,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
     public FrameLayout fragmentContainer; // container used for all fragments
     public GameScreen gameScreen = null;
     private boolean haveRestoredInstanceState;
+    public boolean haveToGoDirectToGameScreen = false;
 
     public FirebaseRemoteConfig mFirebaseRemoteConfig;
 
@@ -44,6 +54,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
+
+        // check for, is app launched by fcm notification
+        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("message"))
+            handleForDataPayloadByFCM(getIntent().getExtras().getString("message"));
 
         fragmentContainer = findViewById(R.id.fragment_container);
 
@@ -68,6 +82,60 @@ public class MainActivity extends AppCompatActivity {
 
         // initiating remote config
         initFirebaseRemoteConfig();
+
+        //subscribe to topic
+        subscribeToTopic();
+
+        myAlarm();
+    }
+
+    public void myAlarm() {
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.set(Calendar.HOUR_OF_DAY, 16);
+
+        if (calendar.getTime().compareTo(new Date()) < 0)
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+        Intent intent = new Intent(getApplicationContext(), NotificationReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 0, intent,
+                0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        if (alarmManager != null) {
+            alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+        }
+    }
+
+
+    private void subscribeToTopic() {
+        FirebaseMessaging.getInstance().subscribeToTopic("countryCode")
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (!task.isSuccessful()) {
+                            //
+                        }
+                    }
+                });
+    }
+
+    private void handleForDataPayloadByFCM(String message) {
+        try {
+            JSONObject jsonObject = new JSONObject(message);
+            JSONObject data = jsonObject.getJSONObject("data");
+            if (data.getInt("msgType") == 1) {
+                haveToGoDirectToGameScreen = true;
+            } else if (data.getInt("msgType") == 2) {
+                String s = data.toString();
+                SharedPrefsManager.getInstance().write_string_prefs(this, SharedPrefsManager.getInstance().FCM_DATA_PAYLOAD_KEY,
+                        s);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            FirebaseCrashlytics.getInstance().recordException(e);
+        }
     }
 
     private void initFirebaseRemoteConfig() {
@@ -76,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 .setMinimumFetchIntervalInSeconds(3600 * 2)
                 .build();
         mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);
+        mFirebaseRemoteConfig.setDefaultsAsync(R.xml.remote_config_defaults);
 
         mFirebaseRemoteConfig.fetchAndActivate()
                 .addOnCompleteListener(this, new OnCompleteListener<Boolean>() {

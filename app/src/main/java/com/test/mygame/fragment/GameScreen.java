@@ -36,6 +36,10 @@ import androidx.fragment.app.Fragment;
 
 public class GameScreen extends Fragment {
 
+    // remote config keys
+    private static final String CONFIG_KEY_TIME_GAP = "time_gap";
+    private static final String CONFIG_KEY_COLOURS = "colours";
+
     public static String TAG = "game_screen_tag";
     private LinearLayout box1, box2, box3, box4;
     private TextView textView, scoreView;
@@ -108,12 +112,12 @@ public class GameScreen extends Fragment {
         if (getContext() != null) {
             FirebaseRemoteConfig remoteConfig = ((MainActivity) getContext()).mFirebaseRemoteConfig;
             if (remoteConfig != null) {
-                if (!TextUtils.isEmpty(remoteConfig.getString("time_gap")))
-                    gameTimeInSec = Integer.parseInt(remoteConfig.getString("time_gap"));
+                if (!TextUtils.isEmpty(remoteConfig.getString(CONFIG_KEY_TIME_GAP)))
+                    gameTimeInSec = Integer.parseInt(remoteConfig.getString(CONFIG_KEY_TIME_GAP));
 
-                if (!TextUtils.isEmpty(remoteConfig.getString("colours"))) {
+                if (!TextUtils.isEmpty(remoteConfig.getString(CONFIG_KEY_COLOURS))) {
                     try {
-                        JSONObject object = new JSONObject(remoteConfig.getString("colours"));
+                        JSONObject object = new JSONObject(remoteConfig.getString(CONFIG_KEY_COLOURS));
                         box1Color = object.getString("colour1");
                         box2Color = object.getString("colour2");
                         box3Color = object.getString("colour3");

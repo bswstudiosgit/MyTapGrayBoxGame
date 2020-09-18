@@ -14,6 +14,7 @@ public class SharedPrefsManager {
     private String PREFERENCES_KEY = "game_preferences";
     public String BEST_SCORE_KEY = "best_score";
     public String SAVED_GAME_KEY = "saved_game";
+    public String FCM_DATA_PAYLOAD_KEY = "fcm_data_payload";
 
     // private constructor restricted to this class itself
     private SharedPrefsManager() {
