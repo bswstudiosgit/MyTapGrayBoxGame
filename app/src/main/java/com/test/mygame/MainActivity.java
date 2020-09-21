@@ -10,6 +10,7 @@ import android.widget.FrameLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
@@ -46,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean haveToGoDirectToGameScreen = false;
 
     public FirebaseRemoteConfig mFirebaseRemoteConfig;
+    public FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,9 @@ public class MainActivity extends AppCompatActivity {
 
         // initializing sound manager and loading required sounds
         MySoundManager.getInstance().loadSound(this);
+
+        // Obtain the FirebaseAnalytics instance.
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
 
         // initiating remote config
         initFirebaseRemoteConfig();

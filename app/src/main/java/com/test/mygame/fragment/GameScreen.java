@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.test.mygame.BuildConfig;
@@ -252,7 +253,33 @@ public class GameScreen extends Fragment {
         isGameOver = true;
 
         SharedPrefsManager prefsManager = SharedPrefsManager.getInstance();
-        prefsManager.deleteSavedGame(getContext());
+        if (getContext() != null) {
+            prefsManager.deleteSavedGame(getContext());
+
+            // incrementing total game played
+            prefsManager.write_integer_prefs(getContext(), prefsManager.TOTAL_GAMES_PLAYED_KEY,
+                    prefsManager.read_integer_prefs(getContext(), prefsManager.TOTAL_GAMES_PLAYED_KEY) + 1);
+
+            // logging event
+            if (getContext() != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString(FirebaseAnalytics.Param.SCORE, "" + score);
+                ((MainActivity) getContext()).mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.POST_SCORE, bundle);
+                Factory.getInstance().showToast(getContext(), FirebaseAnalytics.Event.POST_SCORE + " : " +
+                        FirebaseAnalytics.Param.SCORE + " = " + score);
+            }
+
+            int gamesPlayed = prefsManager.read_integer_prefs(getContext(), prefsManager.TOTAL_GAMES_PLAYED_KEY);
+            String userExp;
+            if (gamesPlayed < 4)
+                userExp = "Beginner";
+            else if (gamesPlayed < 15)
+                userExp = "Intermediate";
+            else
+                userExp = "Expert";
+            ((MainActivity) getContext()).mFirebaseAnalytics.setUserProperty("experience", userExp);
+            Factory.getInstance().showToast(getContext(), "experience : " + userExp);
+        }
 
         int bestScore = prefsManager.read_integer_prefs(getContext(), prefsManager.BEST_SCORE_KEY);
         if (bestScore < score) {
@@ -390,6 +417,13 @@ public class GameScreen extends Fragment {
                         textView.setVisibility(View.GONE);
                     isGameStarted = true;
                     setGrayColor();
+
+                    if (getContext() != null) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "game_start");
+                        ((MainActivity) getContext()).mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+                        Factory.getInstance().showToast(getContext(), FirebaseAnalytics.Param.ITEM_NAME + " : game_start");
+                    }
                 }
             }
         }.start();
