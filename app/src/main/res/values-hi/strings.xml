@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ग्रे बॉक्स पर टैप करें</string>
+    <string name="gameplay_title_score">स्कोर :</string>
+    <string name="play">खेल</string>
+    <string name="gameover">खेल खत्म</string>
+    <string name="home">घर</string>
+    <string name="replay">फिर से खेलते हैं</string>
+    <string name="current_score">वर्तमान स्कोर</string>
+    <string name="best_score">सर्वश्रेष्ठ अंक</string>
+    <string name="do_you_want_to_save_this_game">क्या आप इस गेम को बचाना चाहते हैं?</string>
+    <string name="yes">हाँ</string>
+    <string name="no">नहीं</string>
+    <string name="do_you_want_to_exit">क्या बाहर जाना चाहते हो?</string>
+    <string name="do_you_want_to_resume_saved_game">क्या आप सहेजे गए गेम को फिर से शुरू करना चाहते हैं?</string>
+    <string name="continue_text">जारी रखें</string>
+    <string name="new_game">नया खेल</string>
+    <string name="feedback_mail_subject">खेल में त्रुटि</string>
+    <string name="feedback">प्रतिपुष्टि</string>
+    <string name="network_type">नेटवर्क प्रकार</string>
+    <string name="device_info">यंत्र की जानकारी</string>
+    <string name="score">स्कोर</string>
+    <string name="mail_us">हमें मेल करें</string>
+    <string name="color_code1">#FF5722</string>
+    <string name="color_code2">#2196F3</string>
+    <string name="color_code3">#FFC107</string>
+    <string name="color_code4">#4CAF50</string>
+    <string name="color_code5">#7E7D7C</string>
+    <string name="show_rc_values">आर सी मान दिखाएँ</string>
+    <string name="default_notification_channel_id">default_notification_channel_id</string>
+    <string name="fcm_message">FCM Message</string>
+    <string name="choose_language">भाषा चुनें</string>
+</resources>

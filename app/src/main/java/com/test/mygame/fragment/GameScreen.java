@@ -15,17 +15,16 @@ import android.widget.TextView;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.test.mygame.BuildConfig;
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
+import com.test.mygame.ResponseListener;
+import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.model.SavedGame;
 import com.test.mygame.util.Factory;
+import com.test.mygame.util.FirebaseAnalyticsManager;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.util.Random;
@@ -36,10 +35,6 @@ import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 public class GameScreen extends Fragment {
-
-    // remote config keys
-    private static final String CONFIG_KEY_TIME_GAP = "time_gap";
-    private static final String CONFIG_KEY_COLOURS = "colours";
 
     public static String TAG = "game_screen_tag";
     private LinearLayout box1, box2, box3, box4;
@@ -109,29 +104,32 @@ public class GameScreen extends Fragment {
         box4Color = getString(R.string.color_code4);
         grayBoxColor = getString(R.string.color_code5);
 
-        // from remote config
-        if (getContext() != null) {
-            FirebaseRemoteConfig remoteConfig = ((MainActivity) getContext()).mFirebaseRemoteConfig;
-            if (remoteConfig != null) {
-                if (!TextUtils.isEmpty(remoteConfig.getString(CONFIG_KEY_TIME_GAP)))
-                    gameTimeInSec = Integer.parseInt(remoteConfig.getString(CONFIG_KEY_TIME_GAP));
+        // from shared preferences
+        SharedPrefsManager manager = SharedPrefsManager.getInstance();
+        int time_gap = manager.read_integer_prefs(getContext(), manager.TIME_GAP_KEY);
+        if (time_gap != 0)
+            gameTimeInSec = time_gap;
 
-                if (!TextUtils.isEmpty(remoteConfig.getString(CONFIG_KEY_COLOURS))) {
-                    try {
-                        JSONObject object = new JSONObject(remoteConfig.getString(CONFIG_KEY_COLOURS));
-                        box1Color = object.getString("colour1");
-                        box2Color = object.getString("colour2");
-                        box3Color = object.getString("colour3");
-                        box4Color = object.getString("colour4");
-                        grayBoxColor = object.getString("colour5");
+        String colour;
+        colour = manager.read_string_prefs(getContext(), manager.COLOUR_CODE1_KEY);
+        if (!TextUtils.isEmpty(colour))
+            box1Color = colour;
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        FirebaseCrashlytics.getInstance().recordException(e);
-                    }
-                }
-            }
-        }
+        colour = manager.read_string_prefs(getContext(), manager.COLOUR_CODE2_KEY);
+        if (!TextUtils.isEmpty(colour))
+            box2Color = colour;
+
+        colour = manager.read_string_prefs(getContext(), manager.COLOUR_CODE3_KEY);
+        if (!TextUtils.isEmpty(colour))
+            box3Color = colour;
+
+        colour = manager.read_string_prefs(getContext(), manager.COLOUR_CODE4_KEY);
+        if (!TextUtils.isEmpty(colour))
+            box4Color = colour;
+
+        colour = manager.read_string_prefs(getContext(), manager.COLOUR_CODE5_KEY);
+        if (!TextUtils.isEmpty(colour))
+            grayBoxColor = colour;
     }
 
     @Override
@@ -211,25 +209,9 @@ public class GameScreen extends Fragment {
                 if (canTouch && isGameStarted) {
                     canTouch = false;
                     onClickMailUs();
-                    enableTouch();
                 }
             }
         });
-    }
-
-    private void enableTouch() {
-        timer = new CountDownTimer(2000, 2000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-
-            }
-
-            @Override
-            public void onFinish() {
-                canTouch = true;
-                timer = null;
-            }
-        }.start();
     }
 
     private void handleTapOnBox(int boxTouched) {
@@ -264,7 +246,7 @@ public class GameScreen extends Fragment {
             if (getContext() != null) {
                 Bundle bundle = new Bundle();
                 bundle.putString(FirebaseAnalytics.Param.SCORE, "" + score);
-                ((MainActivity) getContext()).mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.POST_SCORE, bundle);
+                FirebaseAnalyticsManager.getInstance().logEvent(getContext(), FirebaseAnalytics.Event.POST_SCORE, bundle);
                 Factory.getInstance().showToast(getContext(), FirebaseAnalytics.Event.POST_SCORE + " : " +
                         FirebaseAnalytics.Param.SCORE + " = " + score);
             }
@@ -277,7 +259,7 @@ public class GameScreen extends Fragment {
                 userExp = "Intermediate";
             else
                 userExp = "Expert";
-            ((MainActivity) getContext()).mFirebaseAnalytics.setUserProperty("experience", userExp);
+            FirebaseAnalyticsManager.getInstance().setUserProperty(getContext(), "experience", userExp);
             Factory.getInstance().showToast(getContext(), "experience : " + userExp);
         }
 
@@ -421,7 +403,7 @@ public class GameScreen extends Fragment {
                     if (getContext() != null) {
                         Bundle bundle = new Bundle();
                         bundle.putString(FirebaseAnalytics.Param.ITEM_NAME, "game_start");
-                        ((MainActivity) getContext()).mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+                        FirebaseAnalyticsManager.getInstance().logEvent(getContext(), FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
                         Factory.getInstance().showToast(getContext(), FirebaseAnalytics.Param.ITEM_NAME + " : game_start");
                     }
                 }
@@ -451,9 +433,15 @@ public class GameScreen extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        canTouch = true;
+        isGamePaused = true;
         if (timer != null)
             timer.cancel();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        canTouch = true;
     }
 
     public void onClickMailUs() {
@@ -471,5 +459,44 @@ public class GameScreen extends Fragment {
                 Factory.getInstance().sendMail(getActivity(), subject, body, uri);
             }
         }
+    }
+
+    // handle back pressed
+    public void onBackPressed() {
+        if (!isGameStarted || getContext() == null)
+            return;
+        isGamePaused = true;
+
+        final MainActivity context = (MainActivity) getContext();
+
+        String message;
+        if (BuildConfig.IS_FULL_VERSION)
+            message = getString(R.string.do_you_want_to_save_this_game);
+        else
+            message = getString(R.string.do_you_want_to_exit);
+
+        new MyResponseDialog(getContext(), message, getString(R.string.yes), getString(R.string.no), new ResponseListener() {
+            @Override
+            public void onPositiveResponse() {
+                context.playTapSound();
+                if (BuildConfig.IS_FULL_VERSION) {
+                    SharedPrefsManager.getInstance().saveGame(getContext(), new SavedGame(grayBox, score));
+                }
+                context.getSupportFragmentManager().popBackStack();
+            }
+
+            @Override
+            public void onNeutralResponse() {
+            }
+
+            @Override
+            public void onNegativeResponse() {
+                context.playTapSound();
+                if (BuildConfig.IS_FULL_VERSION) {
+                    SharedPrefsManager.getInstance().deleteSavedGame(getContext());
+                    context.getSupportFragmentManager().popBackStack();
+                }
+            }
+        }).show();
     }
 }

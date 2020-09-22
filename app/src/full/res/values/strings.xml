@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Tap Game Full</string>
+    <string name="app_name">Tap Grey Box</string>
     <string name="gameplay_title_score">Score :</string>
     <string name="play">PLAY</string>
     <string name="gameover">GAMEOVER</string>
@@ -26,4 +26,8 @@
     <string name="color_code4">#4CAF50</string>
     <string name="color_code5">#7E7D7C</string>
     <string name="show_rc_values">Show RC Values</string>
+    <string name="default_notification_channel_id">default_notification_channel_id</string>
+    <string name="fcm_message">FCM Message</string>
+    <string name="choose_language">Choose Language</string>
+
 </resources>

@@ -35,8 +35,8 @@ public class NotificationHelper {
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID);
         mBuilder.setSmallIcon(R.mipmap.ic_launcher);
-        mBuilder.setContentTitle("Title")
-                .setContentText("Content")
+        mBuilder.setContentTitle("Tap Gray Box")
+                .setContentText("Hey! Are you ready to play tap gray box game?")
                 .setAutoCancel(false)
                 .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setContentIntent(resultPendingIntent);

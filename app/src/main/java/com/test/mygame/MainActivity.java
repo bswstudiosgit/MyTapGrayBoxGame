@@ -4,19 +4,19 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.FrameLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 import com.test.mygame.alarm.NotificationReceiver;
-import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.fragment.GameOverScreen;
 import com.test.mygame.fragment.GameScreen;
 import com.test.mygame.fragment.HomeScreen;
@@ -32,6 +32,7 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
@@ -47,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
     public boolean haveToGoDirectToGameScreen = false;
 
     public FirebaseRemoteConfig mFirebaseRemoteConfig;
-    public FirebaseAnalytics mFirebaseAnalytics;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        loadLocale();
         setContentView(R.layout.activity_main);
 
         if (getSupportActionBar() != null)
@@ -82,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
         // initializing sound manager and loading required sounds
         MySoundManager.getInstance().loadSound(this);
 
-        // Obtain the FirebaseAnalytics instance.
-        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
-
         // initiating remote config
         initFirebaseRemoteConfig();
 
@@ -113,9 +111,8 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private void subscribeToTopic() {
-        FirebaseMessaging.getInstance().subscribeToTopic("countryCode")
+        FirebaseMessaging.getInstance().subscribeToTopic(Factory.getInstance().getCountryCode(this))
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
@@ -158,6 +155,31 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d("TAG", "Config params updated");
 
+                            SharedPrefsManager prefsManager = SharedPrefsManager.getInstance();
+                            // checking values in remote config
+                            if (!TextUtils.isEmpty(mFirebaseRemoteConfig.getString("time_gap")))
+                                prefsManager.write_integer_prefs(MainActivity.this, prefsManager.TIME_GAP_KEY,
+                                        Integer.parseInt(mFirebaseRemoteConfig.getString("time_gap")));
+
+                            if (!TextUtils.isEmpty(mFirebaseRemoteConfig.getString("colours"))) {
+                                try {
+                                    JSONObject object = new JSONObject(mFirebaseRemoteConfig.getString("colours"));
+                                    prefsManager.write_string_prefs(MainActivity.this, prefsManager.COLOUR_CODE1_KEY,
+                                            object.getString("colour1"));
+                                    prefsManager.write_string_prefs(MainActivity.this, prefsManager.COLOUR_CODE2_KEY,
+                                            object.getString("colour2"));
+                                    prefsManager.write_string_prefs(MainActivity.this, prefsManager.COLOUR_CODE3_KEY,
+                                            object.getString("colour3"));
+                                    prefsManager.write_string_prefs(MainActivity.this, prefsManager.COLOUR_CODE4_KEY,
+                                            object.getString("colour4"));
+                                    prefsManager.write_string_prefs(MainActivity.this, prefsManager.COLOUR_CODE5_KEY,
+                                            object.getString("colour5"));
+
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                    FirebaseCrashlytics.getInstance().recordException(e);
+                                }
+                            }
                         } else {
                             Log.d("TAG", "Config params updation failed");
                         }
@@ -170,72 +192,13 @@ public class MainActivity extends AppCompatActivity {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (fragment != null) {
             if (fragment instanceof GameScreen) {
-                handleBackPressedOnGameScreen();
+                ((GameScreen) fragment).onBackPressed();
             } else if (fragment instanceof GameOverScreen) {
                 getSupportFragmentManager().popBackStack();
             } else if (fragment instanceof HomeScreen) {
-                handleBackPressedOnHomeScreen();
+                ((HomeScreen) fragment).onBackPressed();
             }
         }
-    }
-
-    private void handleBackPressedOnGameScreen() {
-        if (!gameScreen.isGameStarted)
-            return;
-        gameScreen.isGamePaused = true;
-
-        String message;
-        if (BuildConfig.IS_FULL_VERSION)
-            message = getString(R.string.do_you_want_to_save_this_game);
-        else
-            message = getString(R.string.do_you_want_to_exit);
-
-        new MyResponseDialog(MainActivity.this, message,
-                getString(R.string.yes), getString(R.string.no), new ResponseListener() {
-            @Override
-            public void onPositiveResponse() {
-                playTapSound();
-                if (BuildConfig.IS_FULL_VERSION) {
-                    SharedPrefsManager.getInstance().saveGame(MainActivity.this, new SavedGame(gameScreen.grayBox,
-                            gameScreen.score));
-                }
-                getSupportFragmentManager().popBackStack();
-            }
-
-            @Override
-            public void onNeutralResponse() {
-            }
-
-            @Override
-            public void onNegativeResponse() {
-                playTapSound();
-                if (BuildConfig.IS_FULL_VERSION) {
-                    SharedPrefsManager.getInstance().deleteSavedGame(MainActivity.this);
-                    getSupportFragmentManager().popBackStack();
-                }
-            }
-        }).show();
-    }
-
-    private void handleBackPressedOnHomeScreen() {
-        new MyResponseDialog(MainActivity.this, getString(R.string.do_you_want_to_exit),
-                getString(R.string.yes), getString(R.string.no), new ResponseListener() {
-            @Override
-            public void onPositiveResponse() {
-                playTapSound();
-                exitFromGame();
-            }
-
-            @Override
-            public void onNeutralResponse() {
-
-            }
-
-            @Override
-            public void onNegativeResponse() {
-                playTapSound();
-            }
-        }).show();
     }
 
     /**
@@ -248,9 +211,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        if (gameScreen != null)
-            gameScreen.isGamePaused = true;
-
         MySoundManager.getInstance().pause();
     }
 
@@ -314,9 +274,27 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == Factory.getInstance().WRITE_REQUEST_CODE) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults != null && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //
             }
         }
+    }
+
+    public void setLocale(String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Configuration configuration = new Configuration();
+        configuration.setLocale(locale);
+        getBaseContext().getResources().updateConfiguration(configuration, getBaseContext().getResources().getDisplayMetrics());
+
+        // save selected language to shared preferences
+        SharedPrefsManager prefs = SharedPrefsManager.getInstance();
+        prefs.write_string_prefs(this, prefs.SELECTED_LANGUAGE_LOCALE_KEY, languageCode);
+    }
+
+    public void loadLocale() {
+        SharedPrefsManager prefs = SharedPrefsManager.getInstance();
+        String locale = prefs.read_string_prefs(this, prefs.SELECTED_LANGUAGE_LOCALE_KEY);
+        setLocale(locale);
     }
 }

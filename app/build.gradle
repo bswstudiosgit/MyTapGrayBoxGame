@@ -20,30 +20,20 @@ android {
         }
     }
 
-    flavorDimensions "mode", "lang"
+    flavorDimensions "default"
     productFlavors {
         demo {
-            dimension "mode"
+            dimension "default"
             applicationIdSuffix ".demo"
             versionNameSuffix "-demo"
             buildConfigField "boolean", "IS_FULL_VERSION", "false"
         }
 
         full {
-            dimension "mode"
+            dimension "default"
             applicationIdSuffix ".full"
             versionNameSuffix "-full"
             buildConfigField "boolean", "IS_FULL_VERSION", "true"
-        }
-
-        eng {
-            dimension "lang"
-            versionNameSuffix "-eng"
-        }
-
-        hindi {
-            dimension "lang"
-            versionNameSuffix "-hindi"
         }
     }
 

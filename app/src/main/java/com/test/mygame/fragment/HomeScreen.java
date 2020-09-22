@@ -1,5 +1,6 @@
 package com.test.mygame.fragment;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -26,12 +27,13 @@ import org.json.JSONObject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 public class HomeScreen extends Fragment {
 
     public static String TAG = "home_screen_tag";
-    private Button playButton, showRCValuesButton;
+    private Button playButton, showRCValuesButton, chooseLangButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,7 +46,9 @@ public class HomeScreen extends Fragment {
         View view = inflater.inflate(R.layout.homescreen_fragment_layout, container, false);
 
         playButton = view.findViewById(R.id.play);
-        showRCValuesButton = view.findViewById(R.id.button);
+        showRCValuesButton = view.findViewById(R.id.showRcValue);
+        chooseLangButton = view.findViewById(R.id.chooseLanguage);
+
         if (getContext() != null) {
             Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.button_scale_animation);
             playButton.startAnimation(animation);
@@ -52,6 +56,12 @@ public class HomeScreen extends Fragment {
             ((MainActivity) getContext()).setTitle(getString(R.string.app_name));
         }
 
+        addListeners();
+
+        return view;
+    }
+
+    private void addListeners() {
         playButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,7 +106,42 @@ public class HomeScreen extends Fragment {
             }
         });
 
-        return view;
+        /////////////////
+
+        chooseLangButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getContext() != null)
+                    showChooseLanguageDialog();
+            }
+        });
+    }
+
+    private void showChooseLanguageDialog() {
+        String[] languages = {"English", "हिन्दी", "اردو"};
+        final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(getResources().getString(R.string.choose_language));
+        builder.setSingleChoiceItems(languages, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int i) {
+                String languageCode = "en";
+                if (i == 0)
+                    languageCode = "en";
+                else if (i == 1)
+                    languageCode = "hi";
+                else if (i == 2)
+                    languageCode = "ur";
+                if (getContext() != null) {
+                    MainActivity context = (MainActivity) getContext();
+                    context.setLocale(languageCode);
+                    context.recreate();
+                }
+
+                dialog.dismiss();
+            }
+        });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     private void goToGameScreen(MainActivity context) {
@@ -161,6 +206,9 @@ public class HomeScreen extends Fragment {
         outState.putString("onScreen", "homeScreen");
     }
 
+    /**
+     * displays remote config data on click of show rc values button
+     */
     private void showRemoteConfigData() {
         String data = "";
         if (getContext() != null) {
@@ -187,5 +235,29 @@ public class HomeScreen extends Fragment {
 
         if (!TextUtils.isEmpty(data))
             new ShowDataDialog(getContext(), data).show();
+    }
+
+    public void onBackPressed() {
+        if (getContext() == null)
+            return;
+        final MainActivity context = (MainActivity) getContext();
+        new MyResponseDialog(getContext(), getString(R.string.do_you_want_to_exit),
+                getString(R.string.yes), getString(R.string.no), new ResponseListener() {
+            @Override
+            public void onPositiveResponse() {
+                context.playTapSound();
+                context.exitFromGame();
+            }
+
+            @Override
+            public void onNeutralResponse() {
+
+            }
+
+            @Override
+            public void onNegativeResponse() {
+                context.playTapSound();
+            }
+        }).show();
     }
 }

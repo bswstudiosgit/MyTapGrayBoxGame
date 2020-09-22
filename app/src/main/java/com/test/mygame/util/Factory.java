@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.telephony.TelephonyManager;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Toast;
@@ -128,5 +129,10 @@ public class Factory {
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         intent.putExtra(android.content.Intent.EXTRA_STREAM, uri);
         activity.startActivity(Intent.createChooser(intent, "Send mail..."));
+    }
+
+    public String getCountryCode(Context context) {
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        return tm.getNetworkCountryIso();
     }
 }

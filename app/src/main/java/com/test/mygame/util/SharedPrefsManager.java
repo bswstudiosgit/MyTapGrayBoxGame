@@ -16,6 +16,15 @@ public class SharedPrefsManager {
     public String SAVED_GAME_KEY = "saved_game";
     public String FCM_DATA_PAYLOAD_KEY = "fcm_data_payload";
     public String TOTAL_GAMES_PLAYED_KEY = "total_games_played";
+    public String SELECTED_LANGUAGE_LOCALE_KEY = "selected_language_locale";
+
+    public String TIME_GAP_KEY = "time_gap";
+    public String COLOUR_CODE1_KEY = "colour1";
+    public String COLOUR_CODE2_KEY = "colour2";
+    public String COLOUR_CODE3_KEY = "colour3";
+    public String COLOUR_CODE4_KEY = "colour4";
+    public String COLOUR_CODE5_KEY = "colour5";
+
 
     // private constructor restricted to this class itself
     private SharedPrefsManager() {

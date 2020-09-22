@@ -41,6 +41,15 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
+
+        if (remoteMessage.getData() != null && remoteMessage.getData().size() > 0) {
+            handleNow();
+        }
+
+        String title = remoteMessage.getNotification().getTitle();
+        String body = remoteMessage.getNotification().getBody();
+
+        sendNotification(title, body);
     }
 
     /**
@@ -50,11 +59,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //
     }
 
-    /**
-     * Handle time allotted to BroadcastReceivers.
-     */
     private void handleNow() {
-        Log.d(TAG, "Short lived task is done.");
+        Log.d(TAG, "Have some data payload");
     }
 
     /**
@@ -72,9 +78,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     /**
      * Create and show a simple notification containing the received FCM message.
      *
-     * @param messageBody FCM message body received.
+     * @param title       FCM message title received
+     * @param messageBody FCM message body received
      */
-    private void sendNotification(String messageBody) {
+    private void sendNotification(String title, String messageBody) {
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
@@ -85,7 +92,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
                         .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO update icon
-                        .setContentTitle(getString(R.string.fcm_message))
+                        .setContentTitle(title)
                         .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)

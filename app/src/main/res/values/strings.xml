@@ -28,5 +28,6 @@
     <string name="show_rc_values">Show RC Values</string>
     <string name="default_notification_channel_id">default_notification_channel_id</string>
     <string name="fcm_message">FCM Message</string>
+    <string name="choose_language">Choose Language</string>
 
 </resources>
