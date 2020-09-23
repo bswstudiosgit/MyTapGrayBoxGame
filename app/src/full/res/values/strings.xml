@@ -29,5 +29,6 @@
     <string name="default_notification_channel_id">default_notification_channel_id</string>
     <string name="fcm_message">FCM Message</string>
     <string name="choose_language">Choose Language</string>
+    <string name="local_notification_message">Hey! Are you ready to play tap gray box game?</string>
 
 </resources>

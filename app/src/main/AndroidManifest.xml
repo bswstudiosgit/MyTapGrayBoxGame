@@ -23,11 +23,9 @@
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/white_icon" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
             android:resource="@color/colorAccent" />
-
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
             android:value="@string/default_notification_channel_id" />
@@ -42,7 +40,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <receiver android:name=".alarm.NotificationReceiver"/>
+        <receiver android:name=".alarm.NotificationReceiver" />
 
         <service
             android:name=".fcm.MyFirebaseMessagingService"
@@ -54,6 +52,5 @@
     </application>
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
 
 </manifest>

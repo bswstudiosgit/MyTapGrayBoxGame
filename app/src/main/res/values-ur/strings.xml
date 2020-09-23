@@ -21,13 +21,7 @@
     <string name="device_info">آلہ کی معلومات</string>
     <string name="score">اسکور</string>
     <string name="mail_us">ہمیں ای میل کریں</string>
-    <string name="color_code1">#FF5722</string>
-    <string name="color_code2">#2196F3</string>
-    <string name="color_code3">#FFC107</string>
-    <string name="color_code4">#4CAF50</string>
-    <string name="color_code5">#7E7D7C</string>
     <string name="show_rc_values">آر سی قدریں دکھائیں</string>
-    <string name="default_notification_channel_id">default_notification_channel_id</string>
-    <string name="fcm_message">FCM Message</string>
     <string name="choose_language">زبان کا انتخاب کریں</string>
+    <string name="local_notification_message">ارے! کیا آپ نل گرے باکس گیم کھیلنے کے لئے تیار ہیں؟</string>
 </resources>

@@ -25,7 +25,6 @@ public class NotificationHelper {
     void createNotification() {
 
         Intent intent = new Intent(mContext, MainActivity.class);
-
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 
         PendingIntent resultPendingIntent = PendingIntent.getActivity(mContext,
@@ -35,9 +34,10 @@ public class NotificationHelper {
 
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(mContext, NOTIFICATION_CHANNEL_ID);
         mBuilder.setSmallIcon(R.mipmap.ic_launcher);
-        mBuilder.setContentTitle("Tap Gray Box")
-                .setContentText("Hey! Are you ready to play tap gray box game?")
+        mBuilder.setContentTitle(mContext.getString(R.string.app_name))
+                .setContentText(mContext.getString(R.string.local_notification_message))
                 .setAutoCancel(false)
+                .setWhen(System.currentTimeMillis())
                 .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setContentIntent(resultPendingIntent);
 
@@ -45,7 +45,8 @@ public class NotificationHelper {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             int importance = NotificationManager.IMPORTANCE_HIGH;
-            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID, "NOTIFICATION_CHANNEL_NAME", importance);
+            NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                    mContext.getString(R.string.app_name), importance);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.enableVibration(true);

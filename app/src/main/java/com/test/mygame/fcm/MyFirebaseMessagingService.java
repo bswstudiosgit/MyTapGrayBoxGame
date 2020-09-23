@@ -42,25 +42,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
-        if (remoteMessage.getData() != null && remoteMessage.getData().size() > 0) {
-            handleNow();
+        String data = null;
+        if (remoteMessage.getData().size() > 0) {
+            data = remoteMessage.getData().get("message");
         }
 
-        String title = remoteMessage.getNotification().getTitle();
-        String body = remoteMessage.getNotification().getBody();
+        String title = "", body = "";
+        if (remoteMessage.getNotification() != null) {
+            title = remoteMessage.getNotification().getTitle();
+            body = remoteMessage.getNotification().getBody();
+        }
 
-        sendNotification(title, body);
-    }
-
-    /**
-     * Schedule async work using WorkManager.
-     */
-    private void scheduleJob() {
-        //
-    }
-
-    private void handleNow() {
-        Log.d(TAG, "Have some data payload");
+        sendNotification(title, body, data);
     }
 
     /**
@@ -81,9 +74,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param title       FCM message title received
      * @param messageBody FCM message body received
      */
-    private void sendNotification(String title, String messageBody) {
+    private void sendNotification(String title, String messageBody, String data) {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        if (data != null)
+            intent.putExtra("data", data);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
@@ -91,7 +86,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO update icon
+                        .setSmallIcon(R.drawable.white_icon) // TODO update icon
                         .setContentTitle(title)
                         .setContentText(messageBody)
                         .setAutoCancel(true)

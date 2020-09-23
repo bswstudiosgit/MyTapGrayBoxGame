@@ -21,13 +21,7 @@
     <string name="device_info">यंत्र की जानकारी</string>
     <string name="score">स्कोर</string>
     <string name="mail_us">हमें मेल करें</string>
-    <string name="color_code1">#FF5722</string>
-    <string name="color_code2">#2196F3</string>
-    <string name="color_code3">#FFC107</string>
-    <string name="color_code4">#4CAF50</string>
-    <string name="color_code5">#7E7D7C</string>
     <string name="show_rc_values">आर सी मान दिखाएँ</string>
-    <string name="default_notification_channel_id">default_notification_channel_id</string>
-    <string name="fcm_message">FCM Message</string>
     <string name="choose_language">भाषा चुनें</string>
+    <string name="local_notification_message">अरे! क्या आप टैप ग्रे बॉक्स गेम खेलने के लिए तैयार हैं?</string>
 </resources>

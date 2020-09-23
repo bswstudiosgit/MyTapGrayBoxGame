@@ -19,6 +19,7 @@ import com.test.mygame.ResponseListener;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.dialog.ShowDataDialog;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.Factory;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
 
@@ -111,14 +112,19 @@ public class HomeScreen extends Fragment {
         chooseLangButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getContext() != null)
-                    showChooseLanguageDialog();
+                showChooseLanguageDialog();
             }
         });
     }
 
+    /**
+     * displays choose language dialog
+     */
     private void showChooseLanguageDialog() {
-        String[] languages = {"English", "हिन्दी", "اردو"};
+        if (getContext() == null)
+            return;
+
+        String[] languages = {getString(R.string.english), getString(R.string.hindi), getString(R.string.urdu)};
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(getResources().getString(R.string.choose_language));
         builder.setSingleChoiceItems(languages, -1, new DialogInterface.OnClickListener() {
@@ -131,10 +137,10 @@ public class HomeScreen extends Fragment {
                     languageCode = "hi";
                 else if (i == 2)
                     languageCode = "ur";
-                if (getContext() != null) {
-                    MainActivity context = (MainActivity) getContext();
-                    context.setLocale(languageCode);
-                    context.recreate();
+
+                if (getActivity() != null) {
+                    Factory.getInstance().setLocale(getActivity(), languageCode);
+                    getActivity().recreate();
                 }
 
                 dialog.dismiss();
@@ -147,13 +153,12 @@ public class HomeScreen extends Fragment {
     private void goToGameScreen(MainActivity context) {
         if (context.gameScreen == null)
             context.gameScreen = new GameScreen();
-        MyFragmentManager.getInstance().addFragment(context, context.fragmentContainer, context.gameScreen, context.gameScreen.TAG);
+        MyFragmentManager.getInstance().addFragment(context, context.fragmentContainer, context.gameScreen, GameScreen.TAG);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         if (getContext() != null) {
             MainActivity context = (MainActivity) getContext();
             if (context.haveToGoDirectToGameScreen) {
@@ -181,6 +186,9 @@ public class HomeScreen extends Fragment {
     }
 
     private void showPayloadData(String payloadData) {
+        if (getContext() == null)
+            return;
+
         String data = "";
         try {
             JSONObject jsonObject = new JSONObject(payloadData);
@@ -259,5 +267,27 @@ public class HomeScreen extends Fragment {
                 context.playTapSound();
             }
         }).show();
+    }
+
+    public void handleAfterReceivingPayload() {
+        if (getContext() != null) {
+            MainActivity context = (MainActivity) getContext();
+            if (context.haveToGoDirectToGameScreen) {
+                context.haveToGoDirectToGameScreen = false;
+                goToGameScreen(context);
+                return;
+            }
+
+            String payloadData = SharedPrefsManager.getInstance().read_string_prefs(getContext(),
+                    SharedPrefsManager.getInstance().FCM_DATA_PAYLOAD_KEY);
+            if (!TextUtils.isEmpty(payloadData)) {
+                showPayloadData(payloadData);
+            }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
     }
 }

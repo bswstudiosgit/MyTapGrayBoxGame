@@ -20,14 +20,18 @@
     <string name="device_info">Device Info</string>
     <string name="score">Score</string>
     <string name="mail_us">Mail Us</string>
-    <string name="color_code1">#FF5722</string>
-    <string name="color_code2">#2196F3</string>
-    <string name="color_code3">#FFC107</string>
-    <string name="color_code4">#4CAF50</string>
-    <string name="color_code5">#7E7D7C</string>
+    <string name="color_code1" translatable="false">#FF5722</string>
+    <string name="color_code2" translatable="false">#2196F3</string>
+    <string name="color_code3" translatable="false">#FFC107</string>
+    <string name="color_code4" translatable="false">#4CAF50</string>
+    <string name="color_code5" translatable="false">#7E7D7C</string>
     <string name="show_rc_values">Show RC Values</string>
-    <string name="default_notification_channel_id">default_notification_channel_id</string>
-    <string name="fcm_message">FCM Message</string>
+    <string name="default_notification_channel_id" translatable="false">default_notification_channel_id</string>
+    <string name="fcm_message" translatable="false">FCM Message</string>
     <string name="choose_language">Choose Language</string>
+    <string name="local_notification_message">Hey! Are you ready to play tap gray box game?</string>
+    <string name="english" translatable="false">English</string>
+    <string name="hindi" translatable="false">हिन्दी</string>
+    <string name="urdu" translatable="false">اردو</string>
 
 </resources>

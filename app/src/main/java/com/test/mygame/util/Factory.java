@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -18,6 +19,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Date;
+import java.util.Locale;
 
 public class Factory {
 
@@ -134,5 +136,24 @@ public class Factory {
     public String getCountryCode(Context context) {
         TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         return tm.getNetworkCountryIso();
+    }
+
+    public void setLocale(Activity context, String languageCode) {
+        Locale locale = new Locale(languageCode);
+        Locale.setDefault(locale);
+        Configuration configuration = new Configuration();
+        configuration.setLocale(locale);
+        context.getBaseContext().getResources().updateConfiguration(configuration,
+                context.getBaseContext().getResources().getDisplayMetrics());
+
+        // save selected language to shared preferences
+        SharedPrefsManager prefs = SharedPrefsManager.getInstance();
+        prefs.write_string_prefs(context, prefs.SELECTED_LANGUAGE_LOCALE_KEY, languageCode);
+    }
+
+    public void loadLocale(Activity context) {
+        SharedPrefsManager prefs = SharedPrefsManager.getInstance();
+        String locale = prefs.read_string_prefs(context, prefs.SELECTED_LANGUAGE_LOCALE_KEY);
+        setLocale(context, locale);
     }
 }

@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -32,7 +31,6 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Random;
 
 import androidx.annotation.NonNull;
@@ -52,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadLocale();
+        Factory.getInstance().loadLocale(MainActivity.this);
         setContentView(R.layout.activity_main);
 
         if (getSupportActionBar() != null)
@@ -93,7 +91,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void myAlarm() {
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         calendar.set(Calendar.HOUR_OF_DAY, 16);
@@ -266,6 +263,35 @@ public class MainActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent != null && intent.getExtras() != null) {
+            Bundle extras = intent.getExtras();
+            String data = extras.getString("data");
+            handleForDataPayloadByFCM(data);
+            handleAfterReceiveFCMNotification();
+        }
+    }
+
+    private void handleAfterReceiveFCMNotification() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
+            if (fragment instanceof HomeScreen) {
+                ((HomeScreen) fragment).handleAfterReceivingPayload();
+            } else if (fragment instanceof GameOverScreen) {
+                getSupportFragmentManager().popBackStack();
+                Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(HomeScreen.TAG);
+                HomeScreen homeScreen = null;
+                if (fragmentByTag != null)
+                    homeScreen = (HomeScreen) fragmentByTag;
+                if (homeScreen != null)
+                    homeScreen.handleAfterReceivingPayload();
+            }
+        }
+    }
+
     public void playTapSound() {
         MySoundManager.getInstance().playTapSound();
     }
@@ -278,23 +304,5 @@ public class MainActivity extends AppCompatActivity {
                 //
             }
         }
-    }
-
-    public void setLocale(String languageCode) {
-        Locale locale = new Locale(languageCode);
-        Locale.setDefault(locale);
-        Configuration configuration = new Configuration();
-        configuration.setLocale(locale);
-        getBaseContext().getResources().updateConfiguration(configuration, getBaseContext().getResources().getDisplayMetrics());
-
-        // save selected language to shared preferences
-        SharedPrefsManager prefs = SharedPrefsManager.getInstance();
-        prefs.write_string_prefs(this, prefs.SELECTED_LANGUAGE_LOCALE_KEY, languageCode);
-    }
-
-    public void loadLocale() {
-        SharedPrefsManager prefs = SharedPrefsManager.getInstance();
-        String locale = prefs.read_string_prefs(this, prefs.SELECTED_LANGUAGE_LOCALE_KEY);
-        setLocale(locale);
     }
 }
