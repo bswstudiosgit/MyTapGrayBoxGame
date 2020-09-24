@@ -7,8 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.test.mygame.MainActivity;
-import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.R;
+import com.test.mygame.util.AdmobManager;
+import com.test.mygame.util.MyFragmentManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -57,9 +58,12 @@ public class SplashScreen extends Fragment {
             @Override
             public void onFinish() {
                 timer = null;
-                MainActivity context = (MainActivity) getContext();
-                HomeScreen homeScreen = new HomeScreen();
-                MyFragmentManager.getInstance().replaceFragment(context, context.fragmentContainer, homeScreen, homeScreen.TAG);
+                AdmobManager.getInstance().showBannerAds();
+                if (getContext() != null) {
+                    MainActivity context = (MainActivity) getContext();
+                    HomeScreen homeScreen = new HomeScreen();
+                    MyFragmentManager.getInstance().replaceFragment(context, context.fragmentContainer, homeScreen, HomeScreen.TAG);
+                }
             }
         }.start();
     }

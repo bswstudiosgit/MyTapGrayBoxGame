@@ -9,6 +9,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.FrameLayout;
 
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -21,6 +24,7 @@ import com.test.mygame.fragment.GameScreen;
 import com.test.mygame.fragment.HomeScreen;
 import com.test.mygame.fragment.SplashScreen;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.AdmobManager;
 import com.test.mygame.util.Factory;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.MySoundManager;
@@ -47,11 +51,31 @@ public class MainActivity extends AppCompatActivity {
 
     public FirebaseRemoteConfig mFirebaseRemoteConfig;
 
+    private FrameLayout adContainerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Factory.getInstance().loadLocale(MainActivity.this);
         setContentView(R.layout.activity_main);
+
+        //////////////////////////////////////////////////
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+
+            }
+        });
+
+        adContainerView = findViewById(R.id.ad_view_container);
+        adContainerView.post(new Runnable() {
+            @Override
+            public void run() {
+                AdmobManager.getInstance().loadBanner(MainActivity.this, adContainerView);
+            }
+        });
+
+        //////////////////////////////////////////////////
 
         if (getSupportActionBar() != null)
             getSupportActionBar().hide();
@@ -120,6 +144,18 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent != null && intent.getExtras() != null) {
+            Bundle extras = intent.getExtras();
+            String data = extras.getString("data");
+            handleForDataPayloadByFCM(data);
+            handleAfterReceiveFCMNotification();
+        }
+    }
+
     private void handleForDataPayloadByFCM(String message) {
         try {
             JSONObject jsonObject = new JSONObject(message);
@@ -134,6 +170,23 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
             FirebaseCrashlytics.getInstance().recordException(e);
+        }
+    }
+
+    private void handleAfterReceiveFCMNotification() {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
+            if (fragment instanceof HomeScreen) {
+                ((HomeScreen) fragment).handleAfterReceivingPayload();
+            } else if (fragment instanceof GameOverScreen) {
+                getSupportFragmentManager().popBackStack();
+                Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(HomeScreen.TAG);
+                HomeScreen homeScreen = null;
+                if (fragmentByTag != null)
+                    homeScreen = (HomeScreen) fragmentByTag;
+                if (homeScreen != null)
+                    homeScreen.handleAfterReceivingPayload();
+            }
         }
     }
 
@@ -207,6 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
+        AdmobManager.getInstance().onPause();
         super.onPause();
         MySoundManager.getInstance().pause();
     }
@@ -225,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        AdmobManager.getInstance().onDestroy();
         MySoundManager.getInstance().releaseSoundPool();
         super.onDestroy();
     }
@@ -232,6 +287,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        AdmobManager.getInstance().onResume();
+
         if (haveRestoredInstanceState) {
             haveRestoredInstanceState = false;
         } else {
@@ -261,35 +319,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-
-        if (intent != null && intent.getExtras() != null) {
-            Bundle extras = intent.getExtras();
-            String data = extras.getString("data");
-            handleForDataPayloadByFCM(data);
-            handleAfterReceiveFCMNotification();
-        }
-    }
-
-    private void handleAfterReceiveFCMNotification() {
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (fragment != null) {
-            if (fragment instanceof HomeScreen) {
-                ((HomeScreen) fragment).handleAfterReceivingPayload();
-            } else if (fragment instanceof GameOverScreen) {
-                getSupportFragmentManager().popBackStack();
-                Fragment fragmentByTag = getSupportFragmentManager().findFragmentByTag(HomeScreen.TAG);
-                HomeScreen homeScreen = null;
-                if (fragmentByTag != null)
-                    homeScreen = (HomeScreen) fragmentByTag;
-                if (homeScreen != null)
-                    homeScreen.handleAfterReceivingPayload();
-            }
-        }
     }
 
     public void playTapSound() {

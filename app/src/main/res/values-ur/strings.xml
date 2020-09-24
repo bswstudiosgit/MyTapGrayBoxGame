@@ -24,4 +24,6 @@
     <string name="show_rc_values">آر سی قدریں دکھائیں</string>
     <string name="choose_language">زبان کا انتخاب کریں</string>
     <string name="local_notification_message">ارے! کیا آپ نل گرے باکس گیم کھیلنے کے لئے تیار ہیں؟</string>
+    <string name="resume">جاری رہے</string>
+    <string name="continue_where_you_left">جہاں آپ چلے گئے وہاں جاری رکھیں</string>
 </resources>

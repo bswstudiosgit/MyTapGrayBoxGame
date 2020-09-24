@@ -24,4 +24,6 @@
     <string name="show_rc_values">आर सी मान दिखाएँ</string>
     <string name="choose_language">भाषा चुनें</string>
     <string name="local_notification_message">अरे! क्या आप टैप ग्रे बॉक्स गेम खेलने के लिए तैयार हैं?</string>
+    <string name="resume">जारी रखें</string>
+    <string name="continue_where_you_left">जहाँ आप रह गए थे उसे जारी रखें</string>
 </resources>

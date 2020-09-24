@@ -1,5 +1,11 @@
 <resources>
     <string name="app_name">Tap Grey Box</string>
+
+    <!--    /////////////////// ad ids //////////////////////////-->
+    <string name="ADMOB_APP_ID" translatable="false">ca-app-pub-4943607897768964~8206082520</string>
+    <string name="BANNER_AD_ID" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="REWARDED_VIDEO_AD_ID" translatable="false">ca-app-pub-3940256099942544/5224354917</string>
+
     <string name="gameplay_title_score">Score :</string>
     <string name="play">PLAY</string>
     <string name="gameover">GAMEOVER</string>
@@ -33,5 +39,7 @@
     <string name="english" translatable="false">English</string>
     <string name="hindi" translatable="false">हिन्दी</string>
     <string name="urdu" translatable="false">اردو</string>
+    <string name="resume">Resume</string>
+    <string name="continue_where_you_left">CONTINUE WHERE YOU LEFT</string>
 
 </resources>

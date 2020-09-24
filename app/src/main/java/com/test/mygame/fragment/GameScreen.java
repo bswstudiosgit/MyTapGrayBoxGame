@@ -21,6 +21,7 @@ import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.AdmobManager;
 import com.test.mygame.util.Factory;
 import com.test.mygame.util.FirebaseAnalyticsManager;
 import com.test.mygame.util.MyFragmentManager;
@@ -39,13 +40,14 @@ public class GameScreen extends Fragment {
     public static String TAG = "game_screen_tag";
     private LinearLayout box1, box2, box3, box4;
     private TextView textView, scoreView;
-    private Button mailUsButtonView;
+    private Button mailUsButtonView, resumeButton;
     public int grayBox = 0, score;
     private boolean tapped, canTouch;
-    public boolean isGamePaused, isGameStarted, isGameOver;
+    public boolean isGamePaused, isGameStarted, isGameOver, haveToResumeLastGame;
     private int sec, gameTimeInSec;
     private String box1Color, box2Color, box3Color, box4Color, grayBoxColor;
     private CountDownTimer timer;
+    private SavedGame lastGame;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,13 +62,17 @@ public class GameScreen extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.gamescreen_fragment_layout, container, false);
         init(view);
+
+        if (getActivity() != null && !AdmobManager.getInstance().isRewardedVideoAdLoaded())
+            AdmobManager.getInstance().loadRewardedVideoAd(getActivity(), null);
+
         return view;
     }
 
     /**
      * initializes all views and data for game play
      *
-     * @param view
+     * @param view represents layout attached to fragment
      */
     private void init(View view) {
         sec = 3;
@@ -93,6 +99,7 @@ public class GameScreen extends Fragment {
         textView = view.findViewById(R.id.textView);
         scoreView = view.findViewById(R.id.scoreView);
         mailUsButtonView = view.findViewById(R.id.mailUs);
+        resumeButton = view.findViewById(R.id.resume);
     }
 
     private void initializeValuesFromRemoteConfig() {
@@ -146,6 +153,13 @@ public class GameScreen extends Fragment {
                 resumeLastSavedGame(new SavedGame(savedInstanceState.getInt("grayBox"), savedInstanceState.getInt("score")));
                 return;
             }
+
+            if (haveToResumeLastGame && lastGame != null) {
+                haveToResumeLastGame = false;
+                resumeLastSavedGame(lastGame);
+                return;
+            }
+
             startTimer();
         } else {
             resumeLastSavedGame(lastSavedGame);
@@ -212,6 +226,13 @@ public class GameScreen extends Fragment {
                 }
             }
         });
+
+        resumeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
     }
 
     private void handleTapOnBox(int boxTouched) {
@@ -233,6 +254,8 @@ public class GameScreen extends Fragment {
      */
     private void gameOver() {
         isGameOver = true;
+
+        lastGame = new SavedGame(grayBox, score);
 
         SharedPrefsManager prefsManager = SharedPrefsManager.getInstance();
         if (getContext() != null) {
@@ -452,7 +475,7 @@ public class GameScreen extends Fragment {
             if (file != null) {
                 String subject = getString(R.string.feedback_mail_subject);
                 String body = getString(R.string.feedback) + ":\n" +
-                        getString(R.string.network_type) + ": " + Factory.getInstance().getNetworkType(getContext()) + "\n" +
+                        getString(R.string.network_type) + ": " + Factory.getInstance().getNetworkType(getActivity()) + "\n" +
                         getString(R.string.device_info) + ": " + Build.BRAND.toUpperCase() + " " + Build.MODEL + "\n" +
                         getString(R.string.score) + ": " + score;
                 Uri uri = FileProvider.getUriForFile(getActivity(), BuildConfig.APPLICATION_ID + ".provider", file);
