@@ -4,6 +4,7 @@
     <!--    /////////////////// ad ids //////////////////////////-->
     <string name="ADMOB_APP_ID" translatable="false">ca-app-pub-4943607897768964~8206082520</string>
     <string name="BANNER_AD_ID" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
+    <string name="INTERSTITIAL_AD_ID" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
     <string name="REWARDED_VIDEO_AD_ID" translatable="false">ca-app-pub-3940256099942544/5224354917</string>
 
     <string name="gameplay_title_score">Score :</string>

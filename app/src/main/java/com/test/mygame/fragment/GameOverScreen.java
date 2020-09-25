@@ -34,9 +34,7 @@ public class GameOverScreen extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.gameover_fragment_layout, container, false);
-
         initViews(view);
-
         return view;
     }
 
@@ -126,9 +124,10 @@ public class GameOverScreen extends Fragment {
         } else {
             currentScore = savedInstanceState.getInt("currentScore");
             bestScore = savedInstanceState.getInt("bestScore");
-
             setScoreToRespectiveViews();
         }
+
+        AdmobManager.getInstance().showInterstitialAd();
     }
 
     private void setScoreToRespectiveViews() {

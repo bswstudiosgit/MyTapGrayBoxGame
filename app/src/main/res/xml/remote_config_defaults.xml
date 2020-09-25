@@ -4,10 +4,16 @@
         <key>time_gap</key>
         <value>1</value>
     </entry>
+
     <entry>
         <key>colours</key>
         <value>
             {"colour1":"#FF5722","colour2":"#2196F3","colour3":"#FFC107","colour4":"#4CAF50","colour5":"#7E7D7C"}
         </value>
+    </entry>
+
+    <entry>
+        <key>interstitial_ad_show_gap</key>
+        <value>2</value>
     </entry>
 </defaultsMap>

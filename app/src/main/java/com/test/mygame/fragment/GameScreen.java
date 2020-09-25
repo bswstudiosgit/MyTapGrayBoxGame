@@ -43,8 +43,8 @@ public class GameScreen extends Fragment {
     private Button mailUsButtonView, resumeButton;
     public int grayBox = 0, score;
     private boolean tapped, canTouch;
-    public boolean isGamePaused, isGameStarted, isGameOver, haveToResumeLastGame;
-    private int sec, gameTimeInSec;
+    public boolean isGamePaused, isGameStarted, isGameOver, haveToResumeLastGame, haveShowedInterstitialAdFromGameStart;
+    private int sec, gameTimeInSec, interstitialAdShowGapCount;
     private String box1Color, box2Color, box3Color, box4Color, grayBoxColor;
     private CountDownTimer timer;
     private SavedGame lastGame;
@@ -62,11 +62,16 @@ public class GameScreen extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.gamescreen_fragment_layout, container, false);
         init(view);
+        loadRequiredAds();
+        return view;
+    }
+
+    private void loadRequiredAds() {
+        if (getActivity() != null)
+            AdmobManager.getInstance().loadInterstitialAd();
 
         if (getActivity() != null && !AdmobManager.getInstance().isRewardedVideoAdLoaded())
             AdmobManager.getInstance().loadRewardedVideoAd(getActivity(), null);
-
-        return view;
     }
 
     /**
@@ -137,16 +142,49 @@ public class GameScreen extends Fragment {
         colour = manager.read_string_prefs(getContext(), manager.COLOUR_CODE5_KEY);
         if (!TextUtils.isEmpty(colour))
             grayBoxColor = colour;
+
+        if (interstitialAdShowGapCount == 0)
+            interstitialAdShowGapCount = SharedPrefsManager.getInstance().read_integer_prefs(getContext(),
+                    SharedPrefsManager.getInstance().INTERSTITIAL_AD_SHOW_GAP_KEY);
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         scoreView.setText(getString(R.string.gameplay_title_score) + " " + score);
-
         addListeners();
 
+        if (savedInstanceState == null) {
+            interstitialAdShowGapCount--;
+            if (interstitialAdShowGapCount <= 0) {
+                if (AdmobManager.getInstance().isInterstitialAdLoaded()) {
+                    interstitialAdShowGapCount = SharedPrefsManager.getInstance().read_integer_prefs(getContext(),
+                            SharedPrefsManager.getInstance().INTERSTITIAL_AD_SHOW_GAP_KEY);
+                    haveShowedInterstitialAdFromGameStart = true;
+                    AdmobManager.getInstance().showInterstitialAd();
+                } else {
+                    AdmobManager.getInstance().loadInterstitialAd();
+                    startGame(null);
+                }
+            } else {
+                startGame(null);
+            }
+        } else {
+            if (savedInstanceState.containsKey("isInterstitialAdShown") && savedInstanceState.getBoolean("isInterstitialAdShown")) {
+                SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
+                if (lastSavedGame != null) {
+                    resumeLastSavedGame(lastSavedGame);
+                } else {
+                    int random = new Random().nextInt(4);
+                    resumeLastSavedGame(new SavedGame(random + 1, 0));
+                }
+            } else {
+                startGame(savedInstanceState);
+            }
+        }
+    }
+
+    private void startGame(Bundle savedInstanceState) {
         SavedGame lastSavedGame = SharedPrefsManager.getInstance().getLastSavedGame(getContext());
         if (lastSavedGame == null || !BuildConfig.IS_FULL_VERSION) {
             if (savedInstanceState != null && savedInstanceState.containsKey("onScreen") && savedInstanceState.containsKey("score")) {
@@ -447,6 +485,7 @@ public class GameScreen extends Fragment {
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString("onScreen", "gameScreen");
+        outState.putBoolean("isInterstitialAdShown", haveShowedInterstitialAdFromGameStart);
         if (isGameStarted && !isGameOver) {
             outState.putInt("grayBox", grayBox);
             outState.putInt("score", score);
@@ -521,5 +560,12 @@ public class GameScreen extends Fragment {
                 }
             }
         }).show();
+    }
+
+    public void handleAfterInterstitialAdClosed() {
+        if (haveShowedInterstitialAdFromGameStart) {
+            isGamePaused = false;
+            startGame(null);
+        }
     }
 }

@@ -24,6 +24,7 @@ public class SharedPrefsManager {
     public String COLOUR_CODE3_KEY = "colour3";
     public String COLOUR_CODE4_KEY = "colour4";
     public String COLOUR_CODE5_KEY = "colour5";
+    public String INTERSTITIAL_AD_SHOW_GAP_KEY = "interstitial_ad_show_gap";
 
 
     // private constructor restricted to this class itself

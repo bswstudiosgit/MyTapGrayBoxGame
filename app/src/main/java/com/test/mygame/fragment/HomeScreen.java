@@ -19,6 +19,7 @@ import com.test.mygame.ResponseListener;
 import com.test.mygame.dialog.MyResponseDialog;
 import com.test.mygame.dialog.ShowDataDialog;
 import com.test.mygame.model.SavedGame;
+import com.test.mygame.util.AdmobManager;
 import com.test.mygame.util.Factory;
 import com.test.mygame.util.MyFragmentManager;
 import com.test.mygame.util.SharedPrefsManager;
@@ -58,8 +59,14 @@ public class HomeScreen extends Fragment {
         }
 
         addListeners();
+        loadRequiredAds();
 
         return view;
+    }
+
+    private void loadRequiredAds() {
+        if (getActivity() != null)
+            AdmobManager.getInstance().loadInterstitialAd();
     }
 
     private void addListeners() {
@@ -159,6 +166,7 @@ public class HomeScreen extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
         if (getContext() != null) {
             MainActivity context = (MainActivity) getContext();
             if (context.haveToGoDirectToGameScreen) {
@@ -224,6 +232,9 @@ public class HomeScreen extends Fragment {
             if (remoteConfig != null) {
                 if (!TextUtils.isEmpty(remoteConfig.getString("time_gap")))
                     data += "time_gap " + remoteConfig.getString("time_gap") + "\n";
+
+                if (!TextUtils.isEmpty(remoteConfig.getString("interstitial_ad_show_gap")))
+                    data += "interstitial_ad_show_gap " + remoteConfig.getString("interstitial_ad_show_gap") + "\n";
 
                 if (!TextUtils.isEmpty(remoteConfig.getString("colours"))) {
                     try {

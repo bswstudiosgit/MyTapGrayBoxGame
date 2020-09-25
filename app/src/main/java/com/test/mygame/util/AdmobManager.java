@@ -11,20 +11,24 @@ import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.test.mygame.MainActivity;
 import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
 
 public class AdmobManager {
 
     private static AdmobManager single_instance = null;
-    private String TAG_BANNER = "Banner :";
-    private String TAG_REWARDED_VIDEO_AD = "Rewarded Video :";
+    private String TAG_BANNER = "Banner : ";
+    private String TAG_INTERSTITIAL = "Interstitial : ";
+    private String TAG_REWARDED_VIDEO_AD = "Rewarded Video : ";
 
     private AdView adView;
+    private InterstitialAd mInterstitialAd;
     private RewardedAd rewardedAd;
 
     // private constructor restricted to this class itself
@@ -76,49 +80,49 @@ public class AdmobManager {
             public void onAdClicked() {
                 super.onAdClicked();
                 Log.d(TAG_BANNER, "onAdClicked()");
-                Factory.getInstance().showToast(context, "onAdClicked()");
+                Factory.getInstance().showToast(context, TAG_BANNER + "onAdClicked()");
             }
 
             @Override
             public void onAdClosed() {
                 super.onAdClosed();
                 Log.d(TAG_BANNER, "onAdClosed()");
-                Factory.getInstance().showToast(context, "onAdClosed()");
+                Factory.getInstance().showToast(context, TAG_BANNER + "onAdClosed()");
             }
 
             @Override
             public void onAdFailedToLoad(LoadAdError loadAdError) {
                 super.onAdFailedToLoad(loadAdError);
                 Log.d(TAG_BANNER, "onAdFailedToLoad()");
-                Factory.getInstance().showToast(context, "onAdFailedToLoad()");
+                Factory.getInstance().showToast(context, TAG_BANNER + "onAdFailedToLoad()");
             }
 
             @Override
             public void onAdImpression() {
                 super.onAdImpression();
                 Log.d(TAG_BANNER, "onAdImpression()");
-                Factory.getInstance().showToast(context, "onAdImpression()");
+                Factory.getInstance().showToast(context, TAG_BANNER + "onAdImpression()");
             }
 
             @Override
             public void onAdLeftApplication() {
                 super.onAdLeftApplication();
                 Log.d(TAG_BANNER, "onAdLeftApplication()");
-                Factory.getInstance().showToast(context, "onAdLeftApplication()");
+                Factory.getInstance().showToast(context, TAG_BANNER + "onAdLeftApplication()");
             }
 
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
                 Log.d(TAG_BANNER, "onAdLoaded()");
-                Factory.getInstance().showToast(context, "onAdLoaded()");
+                Factory.getInstance().showToast(context, TAG_BANNER + "onAdLoaded()");
             }
 
             @Override
             public void onAdOpened() {
                 super.onAdOpened();
                 Log.d(TAG_BANNER, "onAdOpened()");
-                Factory.getInstance().showToast(context, "onAdOpened()");
+                Factory.getInstance().showToast(context, TAG_BANNER + "onAdOpened()");
             }
         });
     }
@@ -155,6 +159,87 @@ public class AdmobManager {
 
     ///////////////////////// banner ads /////////////////////////////////
 
+    ///////////////////////// interstitial ad /////////////////////////////////
+
+    public void initializeInterstitialAd(final Activity context) {
+        mInterstitialAd = new InterstitialAd(context);
+        mInterstitialAd.setAdUnitId(context.getString(R.string.INTERSTITIAL_AD_ID));
+        mInterstitialAd.setAdListener(new AdListener() {
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+                Log.d(TAG_INTERSTITIAL, "onAdOpened()");
+                Factory.getInstance().showToast(context, TAG_INTERSTITIAL + "onAdOpened()");
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                Log.d(TAG_INTERSTITIAL, "onAdLoaded()");
+                Factory.getInstance().showToast(context, TAG_INTERSTITIAL + "onAdLoaded()");
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+                Log.d(TAG_INTERSTITIAL, "onAdLeftApplication()");
+                Factory.getInstance().showToast(context, TAG_INTERSTITIAL + "onAdLeftApplication()");
+            }
+
+            @Override
+            public void onAdImpression() {
+                super.onAdImpression();
+                Log.d(TAG_INTERSTITIAL, "onAdImpression()");
+                Factory.getInstance().showToast(context, TAG_INTERSTITIAL + "onAdImpression()");
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Log.d(TAG_INTERSTITIAL, "onAdFailedToLoad()");
+                Factory.getInstance().showToast(context, TAG_INTERSTITIAL + "onAdFailedToLoad()");
+            }
+
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                Log.d(TAG_INTERSTITIAL, "onAdClosed()");
+                Factory.getInstance().showToast(context, TAG_INTERSTITIAL + "onAdClosed()");
+                loadInterstitialAd();
+
+                MainActivity mainActivity = (MainActivity) context;
+                if (mainActivity.gameScreen != null && mainActivity.gameScreen.haveShowedInterstitialAdFromGameStart) {
+                    mainActivity.gameScreen.handleAfterInterstitialAdClosed();
+                }
+            }
+
+            @Override
+            public void onAdClicked() {
+                super.onAdClicked();
+                Log.d(TAG_INTERSTITIAL, "onAdClicked()");
+                Factory.getInstance().showToast(context, TAG_INTERSTITIAL + "onAdClicked()");
+            }
+        });
+    }
+
+    public void loadInterstitialAd() {
+        if (mInterstitialAd != null && !mInterstitialAd.isLoaded() && !mInterstitialAd.isLoading())
+            mInterstitialAd.loadAd(new AdRequest.Builder().build());
+    }
+
+    public void showInterstitialAd() {
+        if (mInterstitialAd != null && mInterstitialAd.isLoaded())
+            mInterstitialAd.show();
+    }
+
+    public boolean isInterstitialAdLoaded() {
+        if (mInterstitialAd != null)
+            return mInterstitialAd.isLoaded();
+        return false;
+    }
+
+    ///////////////////////// interstitial ad /////////////////////////////////
+
     ///////////////////////// rewarded video ad /////////////////////////////////
 
     public void loadRewardedVideoAd(final Activity context, final ResponseListener listener) {
@@ -164,7 +249,7 @@ public class AdmobManager {
             public void onRewardedAdLoaded() {
                 super.onRewardedAdLoaded();
                 Log.d(TAG_REWARDED_VIDEO_AD, "onRewardedAdLoaded()");
-                Factory.getInstance().showToast(context, "onRewardedAdLoaded()");
+                Factory.getInstance().showToast(context, TAG_REWARDED_VIDEO_AD + "onRewardedAdLoaded()");
 
                 if (listener != null)
                     listener.onPositiveResponse();
@@ -174,7 +259,7 @@ public class AdmobManager {
             public void onRewardedAdFailedToLoad(LoadAdError loadAdError) {
                 super.onRewardedAdFailedToLoad(loadAdError);
                 Log.d(TAG_REWARDED_VIDEO_AD, "onRewardedAdFailedToLoad()");
-                Factory.getInstance().showToast(context, "onRewardedAdFailedToLoad()");
+                Factory.getInstance().showToast(context, TAG_REWARDED_VIDEO_AD + "onRewardedAdFailedToLoad()");
 
                 if (listener != null)
                     listener.onNegativeResponse();

@@ -44,17 +44,15 @@ import androidx.fragment.app.FragmentManager;
 
 public class MainActivity extends AppCompatActivity {
 
-    public FrameLayout fragmentContainer; // container used for all fragments
-    public GameScreen gameScreen = null;
-    private boolean haveRestoredInstanceState;
-    public boolean haveToGoDirectToGameScreen = false;
-
-    public FirebaseRemoteConfig mFirebaseRemoteConfig;
-
-    private FrameLayout adContainerView;
+    public FrameLayout fragmentContainer; // container used for all fragments (screens)
+    public GameScreen gameScreen = null; // used for using single instance for gameScreen fragment
+    private boolean haveRestoredInstanceState; // will true if app launched and received savedInstanceState found not null
+    public boolean haveToGoDirectToGameScreen = false; // if true then we directly go to gameScreen immediately from homeScreen
+    public FirebaseRemoteConfig mFirebaseRemoteConfig; // instance holder for firebase remote config
+    private FrameLayout adContainerView; // container for banner ad
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Factory.getInstance().loadLocale(MainActivity.this);
         setContentView(R.layout.activity_main);
@@ -72,8 +70,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 AdmobManager.getInstance().loadBanner(MainActivity.this, adContainerView);
+                if (savedInstanceState != null)
+                    AdmobManager.getInstance().showBannerAds();
             }
         });
+
+        // initiating interstitial ads
+        AdmobManager.getInstance().initializeInterstitialAd(MainActivity.this);
+        AdmobManager.getInstance().loadInterstitialAd();
 
         //////////////////////////////////////////////////
 
@@ -190,6 +194,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * initializes firebase remote config
+     */
     private void initFirebaseRemoteConfig() {
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
@@ -230,6 +237,10 @@ public class MainActivity extends AppCompatActivity {
                                     FirebaseCrashlytics.getInstance().recordException(e);
                                 }
                             }
+
+                            if (!TextUtils.isEmpty(mFirebaseRemoteConfig.getString("interstitial_ad_show_gap")))
+                                prefsManager.write_integer_prefs(MainActivity.this, prefsManager.INTERSTITIAL_AD_SHOW_GAP_KEY,
+                                        Integer.parseInt(mFirebaseRemoteConfig.getString("interstitial_ad_show_gap")));
                         } else {
                             Log.d("TAG", "Config params updation failed");
                         }
@@ -294,11 +305,15 @@ public class MainActivity extends AppCompatActivity {
             haveRestoredInstanceState = false;
         } else {
             if (gameScreen != null) {
-                gameScreen.isGamePaused = true;
-                Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-                if (fragment instanceof GameScreen && !gameScreen.isGameStarted && !gameScreen.isGameOver) {
-                    int random = new Random().nextInt(4);
-                    gameScreen.resumeLastSavedGame(new SavedGame(random + 1, 0));
+                if (gameScreen.haveShowedInterstitialAdFromGameStart) {
+                    gameScreen.haveShowedInterstitialAdFromGameStart = false;
+                } else {
+                    gameScreen.isGamePaused = true;
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+                    if (fragment instanceof GameScreen && !gameScreen.isGameStarted && !gameScreen.isGameOver) {
+                        int random = new Random().nextInt(4);
+                        gameScreen.resumeLastSavedGame(new SavedGame(random + 1, 0));
+                    }
                 }
             }
         }
