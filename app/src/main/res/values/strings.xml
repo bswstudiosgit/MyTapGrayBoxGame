@@ -6,6 +6,7 @@
     <string name="BANNER_AD_ID" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
     <string name="INTERSTITIAL_AD_ID" translatable="false">ca-app-pub-3940256099942544/1033173712</string>
     <string name="REWARDED_VIDEO_AD_ID" translatable="false">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="NATIVE_ADVANCED_AD_ID" translatable="false">ca-app-pub-3940256099942544/1044960115</string>
 
     <string name="gameplay_title_score">Score :</string>
     <string name="play">PLAY</string>
@@ -42,5 +43,9 @@
     <string name="urdu" translatable="false">اردو</string>
     <string name="resume">Resume</string>
     <string name="continue_where_you_left">CONTINUE WHERE YOU LEFT</string>
+    <string name="ad_loaded">Ad loaded</string>
+    <string name="ad_not_available">Ad not available. Try later!</string>
+    <string name="loading_ad">Loading Ad</string>
+    <string name="ad" translatable="false">Ad</string>
 
 </resources>

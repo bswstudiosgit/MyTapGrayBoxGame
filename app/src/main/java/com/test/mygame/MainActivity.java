@@ -9,6 +9,11 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
@@ -37,11 +42,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-
 public class MainActivity extends AppCompatActivity {
 
     public FrameLayout fragmentContainer; // container used for all fragments (screens)
@@ -58,26 +58,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //////////////////////////////////////////////////
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
 
-            }
-        });
-
-        adContainerView = findViewById(R.id.ad_view_container);
-        adContainerView.post(new Runnable() {
-            @Override
-            public void run() {
-                AdmobManager.getInstance().loadBanner(MainActivity.this, adContainerView);
-                if (savedInstanceState != null)
-                    AdmobManager.getInstance().showBannerAds();
-            }
-        });
-
-        // initiating interstitial ads
-        AdmobManager.getInstance().initializeInterstitialAd(MainActivity.this);
-        AdmobManager.getInstance().loadInterstitialAd();
+        initializeAds(savedInstanceState);
 
         //////////////////////////////////////////////////
 
@@ -116,6 +98,22 @@ public class MainActivity extends AppCompatActivity {
         subscribeToTopic();
 
         myAlarm();
+    }
+
+    private void initializeAds(Bundle savedInstanceState) {
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+
+            }
+        });
+
+        adContainerView = findViewById(R.id.ad_view_container);
+
+        AdmobManager.getInstance().initializeAllAds(MainActivity.this, adContainerView);
+
+        if (savedInstanceState != null)
+            AdmobManager.getInstance().showBannerAds();
     }
 
     public void myAlarm() {
@@ -255,7 +253,7 @@ public class MainActivity extends AppCompatActivity {
             if (fragment instanceof GameScreen) {
                 ((GameScreen) fragment).onBackPressed();
             } else if (fragment instanceof GameOverScreen) {
-                getSupportFragmentManager().popBackStack();
+                ((GameOverScreen) fragment).onBackPressed();
             } else if (fragment instanceof HomeScreen) {
                 ((HomeScreen) fragment).onBackPressed();
             }
@@ -306,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             if (gameScreen != null) {
                 if (gameScreen.haveShowedInterstitialAdFromGameStart) {
-                    gameScreen.haveShowedInterstitialAdFromGameStart = false;
+                    //
                 } else {
                     gameScreen.isGamePaused = true;
                     Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);

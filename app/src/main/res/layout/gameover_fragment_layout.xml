@@ -88,4 +88,16 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.45" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="@dimen/progress_bar_over_button_size"
+        android:layout_height="@dimen/progress_bar_over_button_size"
+        android:translationZ="@dimen/translation_progress_bar"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/continueButton"
+        app:layout_constraintEnd_toEndOf="@id/continueButton"
+        app:layout_constraintStart_toStartOf="@id/continueButton"
+        app:layout_constraintTop_toTopOf="@id/continueButton" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

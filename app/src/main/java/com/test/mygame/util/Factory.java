@@ -119,7 +119,8 @@ public class Factory {
     }
 
     public void showToast(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+        if (context != null)
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     public void sendMail(Activity activity, String subject, String body, Uri uri) {

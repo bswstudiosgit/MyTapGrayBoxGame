@@ -26,4 +26,7 @@
     <string name="local_notification_message">ارے! کیا آپ نل گرے باکس گیم کھیلنے کے لئے تیار ہیں؟</string>
     <string name="resume">جاری رہے</string>
     <string name="continue_where_you_left">جہاں آپ چلے گئے وہاں جاری رکھیں</string>
+    <string name="ad_loaded">Ad loaded</string>
+    <string name="ad_not_available">Ad not available. Try later!</string>
+    <string name="loading_ad">Loading Ad</string>
 </resources>

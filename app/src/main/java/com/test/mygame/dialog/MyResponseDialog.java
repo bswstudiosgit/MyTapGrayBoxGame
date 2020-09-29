@@ -1,17 +1,23 @@
 package com.test.mygame.dialog;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.ads.formats.UnifiedNativeAdView;
+import com.test.mygame.MainActivity;
 import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
-
-import androidx.annotation.NonNull;
+import com.test.mygame.util.AdmobManager;
+import com.test.mygame.util.Factory;
 
 public class MyResponseDialog extends Dialog {
 
@@ -34,6 +40,10 @@ public class MyResponseDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.my_response_dialog_layout);
+
+        if (getWindow() != null) {
+            getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
 
         positiveButton = findViewById(R.id.yes);
         negativeButton = findViewById(R.id.no);
@@ -68,10 +78,23 @@ public class MyResponseDialog extends Dialog {
             }
         });
 
+        if (AdmobManager.getInstance().nativeAd != null) {
+            FrameLayout container = (FrameLayout) findViewById(R.id.native_ad_container);
+            UnifiedNativeAdView adView = (UnifiedNativeAdView) getLayoutInflater().inflate(R.layout.native_ad_layout, null);
+            AdmobManager.getInstance().showNativeAd(container, adView);
+        }
+
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        Factory.getInstance().hideSystemUI((Activity) context);
+        Factory.getInstance().setListenerToHideStatusAndNavigationBar((Activity) context);
     }
 }

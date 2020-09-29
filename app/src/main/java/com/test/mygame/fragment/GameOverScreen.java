@@ -1,28 +1,35 @@
 package com.test.mygame.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.google.android.gms.ads.AdError;
-import com.google.android.gms.ads.rewarded.RewardItem;
-import com.google.android.gms.ads.rewarded.RewardedAdCallback;
-import com.test.mygame.MainActivity;
-import com.test.mygame.R;
-import com.test.mygame.util.AdmobManager;
-import com.test.mygame.util.MyFragmentManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAdCallback;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.test.mygame.MainActivity;
+import com.test.mygame.R;
+import com.test.mygame.util.AdmobManager;
+import com.test.mygame.util.Factory;
+import com.test.mygame.util.MyFragmentManager;
+
 public class GameOverScreen extends Fragment {
 
     public static String TAG = "game_over_screen_tag";
     private TextView currentScoreView, bestScoreView;
+    private ProgressBar progressBar;
     public int currentScore, bestScore;
 
     @Override
@@ -45,6 +52,7 @@ public class GameOverScreen extends Fragment {
         Button homeButton = view.findViewById(R.id.homeButton);
         Button replayButton = view.findViewById(R.id.replayButton);
         Button continueButton = view.findViewById(R.id.continueButton);
+        progressBar = view.findViewById(R.id.progressBar);
 
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,6 +68,7 @@ public class GameOverScreen extends Fragment {
         replayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hideProgressBar();
                 if (getContext() != null) {
                     MainActivity context = (MainActivity) getContext();
                     context.playTapSound();
@@ -74,7 +83,8 @@ public class GameOverScreen extends Fragment {
         continueButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getActivity() != null) {
+                hideProgressBar();
+                if (getActivity() != null && progressBar.getVisibility() == View.GONE) {
                     MainActivity activity = (MainActivity) getActivity();
                     activity.playTapSound();
                     handleClickOnContinueButton(activity);
@@ -85,34 +95,65 @@ public class GameOverScreen extends Fragment {
 
     private void handleClickOnContinueButton(final MainActivity activity) {
         if (AdmobManager.getInstance().isRewardedVideoAdLoaded()) {
-            AdmobManager.getInstance().showRewardedVideoAd(getActivity(), new RewardedAdCallback() {
+            showRewardedAdAndHandle(activity);
+        } else {
+            showProgressBar();
+            AdmobManager.getInstance().loadRewardedVideoAd(getActivity(), new RewardedAdLoadCallback() {
                 @Override
-                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-                    if (activity.gameScreen != null)
-                        activity.gameScreen.haveToResumeLastGame = true;
-                }
+                public void onRewardedAdLoaded() {
+                    super.onRewardedAdLoaded();
+                    Log.d(AdmobManager.getInstance().TAG_REWARDED_VIDEO_AD, "onRewardedAdLoaded()");
+                    Factory.getInstance().showToast(activity, AdmobManager.getInstance().TAG_REWARDED_VIDEO_AD + "onRewardedAdLoaded()");
 
-                @Override
-                public void onRewardedAdClosed() {
-                    super.onRewardedAdClosed();
-                    if (activity.gameScreen != null && activity.gameScreen.haveToResumeLastGame) {
-                        MyFragmentManager.getInstance().addFragment(activity, activity.fragmentContainer, activity.gameScreen, GameScreen.TAG);
+                    if (progressBar.getVisibility() == View.VISIBLE) {
+                        Factory.getInstance().showToast(getContext(), getString(R.string.ad_loaded));
+                        showRewardedAdAndHandle(activity);
+                        hideProgressBar();
                     }
                 }
 
                 @Override
-                public void onRewardedAdFailedToShow(AdError adError) {
-                    super.onRewardedAdFailedToShow(adError);
-                }
+                public void onRewardedAdFailedToLoad(LoadAdError loadAdError) {
+                    super.onRewardedAdFailedToLoad(loadAdError);
+                    Log.d(AdmobManager.getInstance().TAG_REWARDED_VIDEO_AD, "onRewardedAdFailedToLoad()");
+                    Factory.getInstance().showToast(activity, AdmobManager.getInstance().TAG_REWARDED_VIDEO_AD + "onRewardedAdFailedToLoad()");
 
-                @Override
-                public void onRewardedAdOpened() {
-                    super.onRewardedAdOpened();
+                    if (progressBar.getVisibility() == View.VISIBLE) {
+                        Factory.getInstance().showToast(getContext(), getString(R.string.ad_not_available));
+                        hideProgressBar();
+                    }
                 }
             });
-        } else {
-
         }
+    }
+
+    private void showRewardedAdAndHandle(final MainActivity activity) {
+        AdmobManager.getInstance().showRewardedVideoAd(getActivity(), new RewardedAdCallback() {
+            @Override
+            public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                if (activity.gameScreen != null)
+                    activity.gameScreen.haveToResumeLastGame = true;
+            }
+
+            @Override
+            public void onRewardedAdClosed() {
+                super.onRewardedAdClosed();
+                if (activity.gameScreen != null && activity.gameScreen.haveToResumeLastGame) {
+                    activity.getSupportFragmentManager().popBackStack();
+                    MyFragmentManager.getInstance().addFragment(activity, activity.fragmentContainer, activity.gameScreen, GameScreen.TAG);
+                }
+            }
+
+            @Override
+            public void onRewardedAdFailedToShow(AdError adError) {
+                super.onRewardedAdFailedToShow(adError);
+            }
+
+            @Override
+            public void onRewardedAdOpened() {
+                super.onRewardedAdOpened();
+            }
+        });
     }
 
     @Override
@@ -127,7 +168,47 @@ public class GameOverScreen extends Fragment {
             setScoreToRespectiveViews();
         }
 
-        AdmobManager.getInstance().showInterstitialAd();
+        showInterstitialAd();
+    }
+
+    private void showInterstitialAd() {
+        AdmobManager.getInstance().showInterstitialAd(new AdListener() {
+            @Override
+            public void onAdClicked() {
+                super.onAdClicked();
+                Log.d(AdmobManager.getInstance().TAG_INTERSTITIAL, "onAdClicked()");
+                Factory.getInstance().showToast(getContext(), AdmobManager.getInstance().TAG_INTERSTITIAL + "onAdClicked()");
+            }
+
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                Log.d(AdmobManager.getInstance().TAG_INTERSTITIAL, "onAdClosed()");
+                Factory.getInstance().showToast(getContext(), AdmobManager.getInstance().TAG_INTERSTITIAL + "onAdClosed()");
+                AdmobManager.getInstance().loadInterstitialAd();
+            }
+
+            @Override
+            public void onAdLeftApplication() {
+                super.onAdLeftApplication();
+                Log.d(AdmobManager.getInstance().TAG_INTERSTITIAL, "onAdLeftApplication()");
+                Factory.getInstance().showToast(getContext(), AdmobManager.getInstance().TAG_INTERSTITIAL + "onAdLeftApplication()");
+            }
+
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+                Log.d(AdmobManager.getInstance().TAG_INTERSTITIAL, "onAdOpened()");
+                Factory.getInstance().showToast(getContext(), AdmobManager.getInstance().TAG_INTERSTITIAL + "onAdOpened()");
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Log.d(AdmobManager.getInstance().TAG_INTERSTITIAL, "onAdFailedToLoad()");
+                Factory.getInstance().showToast(getContext(), AdmobManager.getInstance().TAG_INTERSTITIAL + "onAdFailedToLoad()");
+            }
+        });
     }
 
     private void setScoreToRespectiveViews() {
@@ -154,5 +235,23 @@ public class GameOverScreen extends Fragment {
         outState.putString("onScreen", "gameOverScreen");
         outState.putInt("currentScore", currentScore);
         outState.putInt("bestScore", bestScore);
+    }
+
+    private void showProgressBar() {
+        Factory.getInstance().showToast(getContext(), getString(R.string.loading_ad));
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideProgressBar() {
+        if (progressBar != null && progressBar.getVisibility() == View.VISIBLE)
+            progressBar.setVisibility(View.GONE);
+    }
+
+    public void onBackPressed() {
+        if (getContext() == null)
+            return;
+        final MainActivity context = (MainActivity) getContext();
+        context.getSupportFragmentManager().popBackStack();
+        hideProgressBar();
     }
 }

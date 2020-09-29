@@ -11,4 +11,5 @@
     <color name="grey">#7E7D7C</color>
     <color name="black">#000000</color>
     <color name="white">#ffffff</color>
+    <color name="blackAlpha">#30000000</color>
 </resources>
