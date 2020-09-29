@@ -250,7 +250,7 @@ public class AdmobManager {
 
     ///////////////////////// native advanced ad /////////////////////////////////
 
-    private void refreshNativeAdvancedAd(final Context context) {
+    public void refreshNativeAdvancedAd(final Context context) {
         AdLoader.Builder builder = new AdLoader.Builder(context, context.getString(R.string.NATIVE_ADVANCED_AD_ID));
 
         builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
@@ -330,11 +330,13 @@ public class AdmobManager {
         adLoader.loadAd(new AdRequest.Builder().build());
     }
 
-    public void showNativeAd(FrameLayout container, UnifiedNativeAdView adView) {
+    public void showNativeAd(Context context, FrameLayout container, UnifiedNativeAdView adView) {
         if (nativeAd != null) {
             populateUnifiedNativeAdView(nativeAd, adView);
             container.removeAllViews();
             container.addView(adView);
+        } else {
+            refreshNativeAdvancedAd(context);
         }
     }
 

@@ -13,7 +13,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.ads.formats.UnifiedNativeAdView;
-import com.test.mygame.MainActivity;
 import com.test.mygame.R;
 import com.test.mygame.ResponseListener;
 import com.test.mygame.util.AdmobManager;
@@ -81,7 +80,9 @@ public class MyResponseDialog extends Dialog {
         if (AdmobManager.getInstance().nativeAd != null) {
             FrameLayout container = (FrameLayout) findViewById(R.id.native_ad_container);
             UnifiedNativeAdView adView = (UnifiedNativeAdView) getLayoutInflater().inflate(R.layout.native_ad_layout, null);
-            AdmobManager.getInstance().showNativeAd(container, adView);
+            AdmobManager.getInstance().showNativeAd(context, container, adView);
+        } else {
+            AdmobManager.getInstance().refreshNativeAdvancedAd(context);
         }
 
     }
@@ -94,6 +95,7 @@ public class MyResponseDialog extends Dialog {
     @Override
     public void dismiss() {
         super.dismiss();
+        AdmobManager.getInstance().refreshNativeAdvancedAd(context);
         Factory.getInstance().hideSystemUI((Activity) context);
         Factory.getInstance().setListenerToHideStatusAndNavigationBar((Activity) context);
     }
