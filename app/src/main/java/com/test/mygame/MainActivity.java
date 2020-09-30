@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
     private boolean haveRestoredInstanceState; // will true if app launched and received savedInstanceState found not null
     public boolean haveToGoDirectToGameScreen = false; // if true then we directly go to gameScreen immediately from homeScreen
     public FirebaseRemoteConfig mFirebaseRemoteConfig; // instance holder for firebase remote config
-    private FrameLayout adContainerView; // container for banner ad
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        adContainerView = findViewById(R.id.ad_view_container);
+        FrameLayout adContainerView = (FrameLayout) findViewById(R.id.ad_view_container);
 
         AdmobManager.getInstance().initializeAllAds(MainActivity.this, adContainerView);
 

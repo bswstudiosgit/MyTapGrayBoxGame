@@ -24,6 +24,10 @@ public class ShowDataDialog extends Dialog {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show_data_dialog_layout);
 
+        if (getWindow() != null) {
+            getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
         ((TextView) findViewById(R.id.textView)).setText(text);
     }
 

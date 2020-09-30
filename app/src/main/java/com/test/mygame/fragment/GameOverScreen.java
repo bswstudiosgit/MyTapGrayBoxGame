@@ -98,7 +98,7 @@ public class GameOverScreen extends Fragment {
             showRewardedAdAndHandle(activity);
         } else {
             showProgressBar();
-            AdmobManager.getInstance().loadRewardedVideoAd(getActivity(), new RewardedAdLoadCallback() {
+            AdmobManager.getInstance().loadRewardedVideoAd(new RewardedAdLoadCallback() {
                 @Override
                 public void onRewardedAdLoaded() {
                     super.onRewardedAdLoaded();
@@ -128,7 +128,7 @@ public class GameOverScreen extends Fragment {
     }
 
     private void showRewardedAdAndHandle(final MainActivity activity) {
-        AdmobManager.getInstance().showRewardedVideoAd(getActivity(), new RewardedAdCallback() {
+        AdmobManager.getInstance().showRewardedVideoAd(new RewardedAdCallback() {
             @Override
             public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
                 if (activity.gameScreen != null)

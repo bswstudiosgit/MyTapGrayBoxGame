@@ -23,7 +23,6 @@ public class MyResponseDialog extends Dialog {
     private Context context;
     private String title, positiveButtonText, negativeButtonText;
     private ResponseListener listener;
-    private Button positiveButton, negativeButton;
 
     public MyResponseDialog(@NonNull Context context, String title, String positiveButtonText, String negativeButtonText,
                             ResponseListener listener) {
@@ -44,8 +43,8 @@ public class MyResponseDialog extends Dialog {
             getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
 
-        positiveButton = findViewById(R.id.yes);
-        negativeButton = findViewById(R.id.no);
+        Button positiveButton = findViewById(R.id.yes);
+        Button negativeButton = findViewById(R.id.no);
 
         ((TextView) findViewById(R.id.textView)).setText(title);
         positiveButton.setText(positiveButtonText);
@@ -77,13 +76,10 @@ public class MyResponseDialog extends Dialog {
             }
         });
 
-        if (AdmobManager.getInstance().nativeAd != null) {
-            FrameLayout container = (FrameLayout) findViewById(R.id.native_ad_container);
-            UnifiedNativeAdView adView = (UnifiedNativeAdView) getLayoutInflater().inflate(R.layout.native_ad_layout, null);
-            AdmobManager.getInstance().showNativeAd(context, container, adView);
-        } else {
-            AdmobManager.getInstance().refreshNativeAdvancedAd(context);
-        }
+        // showing native advanced ad
+        FrameLayout container = (FrameLayout) findViewById(R.id.native_ad_container);
+        UnifiedNativeAdView adView = (UnifiedNativeAdView) getLayoutInflater().inflate(R.layout.native_ad_layout, null);
+        AdmobManager.getInstance().showNativeAd(container, adView);
 
     }
 
@@ -95,7 +91,7 @@ public class MyResponseDialog extends Dialog {
     @Override
     public void dismiss() {
         super.dismiss();
-        AdmobManager.getInstance().refreshNativeAdvancedAd(context);
+        AdmobManager.getInstance().refreshNativeAdvancedAd();
         Factory.getInstance().hideSystemUI((Activity) context);
         Factory.getInstance().setListenerToHideStatusAndNavigationBar((Activity) context);
     }

@@ -74,7 +74,7 @@ public class GameScreen extends Fragment {
             AdmobManager.getInstance().loadInterstitialAd();
 
         if (getActivity() != null && !AdmobManager.getInstance().isRewardedVideoAdLoaded())
-            AdmobManager.getInstance().loadRewardedVideoAd(getActivity(), null);
+            AdmobManager.getInstance().loadRewardedVideoAd(null);
     }
 
     /**

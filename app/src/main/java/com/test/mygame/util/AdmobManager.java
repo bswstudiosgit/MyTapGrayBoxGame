@@ -1,7 +1,6 @@
 package com.test.mygame.util;
 
 import android.app.Activity;
-import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -33,6 +32,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 import com.test.mygame.MainActivity;
 import com.test.mygame.R;
 
+import java.lang.ref.WeakReference;
+
 public class AdmobManager {
 
     private static AdmobManager single_instance = null;
@@ -40,6 +41,8 @@ public class AdmobManager {
     public String TAG_INTERSTITIAL = "Interstitial : ";
     public String TAG_REWARDED_VIDEO_AD = "Rewarded Video : ";
     private String TAG_NATIVE_ADVANCED_AD = "Native Advanced : ";
+
+    private WeakReference<Activity> activityWeakReference;
 
     private AdView adView;
     private InterstitialAd mInterstitialAd;
@@ -59,15 +62,24 @@ public class AdmobManager {
     }
 
     public void initializeAllAds(MainActivity activity, FrameLayout adContainerView) {
+        activityWeakReference = new WeakReference<Activity>(activity);
+
         // initiating adaptive banner ad
-        loadBanner(activity, adContainerView);
+        loadBanner(adContainerView);
 
         // initiating interstitial ads
-        initializeInterstitialAd(activity);
+        initializeInterstitialAd();
         loadInterstitialAd();
 
         // loading and caching native advanced ad
-        refreshNativeAdvancedAd(activity);
+        refreshNativeAdvancedAd();
+    }
+
+    private Activity getActivityReference() {
+        if (activityWeakReference != null) {
+            return activityWeakReference.get();
+        }
+        return null;
     }
 
     public void onPause() {
@@ -90,7 +102,11 @@ public class AdmobManager {
 
     ///////////////////////// banner ads /////////////////////////////////
 
-    private void loadBanner(final Activity context, FrameLayout adContainerView) {
+    private void loadBanner(FrameLayout adContainerView) {
+        final Activity context = getActivityReference();
+        if (context == null)
+            return;
+
         adView = new AdView(context);
         adView.setAdUnitId(context.getString(R.string.BANNER_AD_ID));
 
@@ -202,7 +218,11 @@ public class AdmobManager {
 
     ///////////////////////// interstitial ad /////////////////////////////////
 
-    public void initializeInterstitialAd(final Activity context) {
+    public void initializeInterstitialAd() {
+        final Activity context = getActivityReference();
+        if (context == null)
+            return;
+
         mInterstitialAd = new InterstitialAd(context);
         mInterstitialAd.setAdUnitId(context.getString(R.string.INTERSTITIAL_AD_ID));
     }
@@ -230,7 +250,11 @@ public class AdmobManager {
 
     ///////////////////////// rewarded video ad /////////////////////////////////
 
-    public void loadRewardedVideoAd(final Activity context, RewardedAdLoadCallback rewardedAdLoadCallback) {
+    public void loadRewardedVideoAd(RewardedAdLoadCallback rewardedAdLoadCallback) {
+        final Activity context = getActivityReference();
+        if (context == null)
+            return;
+
         rewardedAd = new RewardedAd(context, context.getString(R.string.REWARDED_VIDEO_AD_ID));
         rewardedAd.loadAd(new AdRequest.Builder().build(), rewardedAdLoadCallback);
     }
@@ -241,16 +265,24 @@ public class AdmobManager {
         return false;
     }
 
-    public void showRewardedVideoAd(Activity activity, RewardedAdCallback adCallback) {
+    public void showRewardedVideoAd(RewardedAdCallback adCallback) {
+        final Activity context = getActivityReference();
+        if (context == null)
+            return;
+
         if (rewardedAd != null && rewardedAd.isLoaded())
-            rewardedAd.show(activity, adCallback);
+            rewardedAd.show(context, adCallback);
     }
 
     ///////////////////////// rewarded video ad /////////////////////////////////
 
     ///////////////////////// native advanced ad /////////////////////////////////
 
-    public void refreshNativeAdvancedAd(final Context context) {
+    public void refreshNativeAdvancedAd() {
+        final Activity context = getActivityReference();
+        if (context == null)
+            return;
+
         AdLoader.Builder builder = new AdLoader.Builder(context, context.getString(R.string.NATIVE_ADVANCED_AD_ID));
 
         builder.forUnifiedNativeAd(new UnifiedNativeAd.OnUnifiedNativeAdLoadedListener() {
@@ -289,7 +321,7 @@ public class AdmobManager {
                 super.onAdClosed();
                 Log.d(TAG_NATIVE_ADVANCED_AD, "onAdClosed()");
                 Factory.getInstance().showToast(context, TAG_NATIVE_ADVANCED_AD + "onAdClosed()");
-                refreshNativeAdvancedAd(context);
+                refreshNativeAdvancedAd();
             }
 
             @Override
@@ -330,13 +362,17 @@ public class AdmobManager {
         adLoader.loadAd(new AdRequest.Builder().build());
     }
 
-    public void showNativeAd(Context context, FrameLayout container, UnifiedNativeAdView adView) {
+    public void showNativeAd(FrameLayout container, UnifiedNativeAdView adView) {
+        final Activity context = getActivityReference();
+        if (context == null)
+            return;
+
         if (nativeAd != null) {
             populateUnifiedNativeAdView(nativeAd, adView);
             container.removeAllViews();
             container.addView(adView);
         } else {
-            refreshNativeAdvancedAd(context);
+            refreshNativeAdvancedAd();
         }
     }
 
@@ -353,6 +389,7 @@ public class AdmobManager {
 
         // The headline and mediaContent are guaranteed to be in every UnifiedNativeAd.
         ((TextView) adView.getHeadlineView()).setText(nativeAd.getHeadline());
+        adView.getMediaView().setImageScaleType(ImageView.ScaleType.CENTER_CROP);
         adView.getMediaView().setMediaContent(nativeAd.getMediaContent());
 
         // These assets aren't guaranteed to be in every UnifiedNativeAd, so it's important to
